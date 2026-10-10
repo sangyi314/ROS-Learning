@@ -22,6 +22,6 @@ endfunction()
 
 add_lesson_node(hello_node)
 add_lesson_node(number_publisher)
-add_lesson_node(number_subsriber)
+add_lesson_node(number_subscriber)
 
 ament_package()
