@@ -23,7 +23,7 @@ class NumberPublisher : public rclcpp::Node
             message.data = static_cast<double>((sequence % 5)+1);
             sequence++;
             publisher_ -> publish(message);
-            RCLCPP_INFO(get_logger() , "published = %.lf" , message.data);
+            RCLCPP_INFO(get_logger() , "published = %.1f" , message.data);
         }
         std::uint64_t sequence{0};
         rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr publisher_;
