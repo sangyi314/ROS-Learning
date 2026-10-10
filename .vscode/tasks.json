@@ -1,0 +1,42 @@
+
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "ROS2: Build Week2",
+      "type": "process",
+      "command": "/bin/bash",
+      "args": [
+        "-c",
+        "source /opt/ros/jazzy/setup.bash && colcon build --symlink-install --event-handlers console_direct+"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/ros2_week2_ws"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true,
+        "focus": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "ROS2: Clean Week2",
+      "type": "process",
+      "command": "/bin/bash",
+      "args": [
+        "-c",
+        "rm -rf build install log"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/ros2_week2_ws"
+      },
+      "problemMatcher": []
+    }
+  ]
+}
