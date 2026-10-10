@@ -7,6 +7,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(std_msgs REQUIRED)
+
 
 function(add_lesson_node target)
   add_executable(${target} src/${target}.cpp)
@@ -19,5 +21,7 @@ function(add_lesson_node target)
 endfunction()
 
 add_lesson_node(hello_node)
+add_lesson_node(number_publisher)
+add_lesson_node(number_subsriber)
 
 ament_package()
