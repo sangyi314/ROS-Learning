@@ -11,7 +11,7 @@ class SensorPublisher : public rclcpp::Node
     public:
         SensorPublisher() : Node("sensor_publisher")
         {
-            publisher_ = create_publisher<robot_interfaces::msg::SensorSample>("sensor/raw" , rclcpp::Qos(10).reliable());
+            publisher_ = create_publisher<robot_interfaces::msg::SensorSample>("sensor/raw" , rclcpp::QoS(10).reliable());
             timer_ = create_wall_timer(std::chrono::milliseconds(200) , [this](){
                 publish_sample();
             });
@@ -20,7 +20,7 @@ class SensorPublisher : public rclcpp::Node
         void publish_sample()
         {
             robot_interfaces::msg::SensorSample sample;
-            sample.header.stamp = now().to_msg();
+            sample.header.stamp = now();
             sample.header.frame_id = "virtual_sensor";
             sample.sequence = ++sequence_;
             const double phase = static_cast<double>(sequence_ % 100) * 0.2;
