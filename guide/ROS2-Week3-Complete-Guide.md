@@ -4,7 +4,7 @@
 > 环境：Ubuntu 24.04、Bash、ROS 2 Jazzy；继续使用你的 Ubuntu 虚拟机与 VSCode。  
 > 安排：7 天，约 24～29 小时。第 3、5 天内容较多，可以拆成两个半天。  
 > 本周成果：一辆接受速度指令、发布里程计与 TF、在 RViz2 中显示，并能闭环驶向目标点的差速仿真小车。  
-> 内容核对日期：2026-09-22。
+> 内容核对日期：2026-10-11。
 
 本手册沿用前两周的完整讲义形式：包含知识解释、公式推导、完整文件、构建命令、预期结果、例题、练习答案和排错方法。**完成第三周不需要另找教程或下载未提供的配套代码。** 安装软件依赖仍需要联网；末尾链接仅供核对与扩展。
 
@@ -49,7 +49,7 @@
 
 ### 工作空间与终端约定
 
-本周新建 `~/ros2_week3_ws`，包名为 `diff_drive_lab`。它只使用 ROS 标准接口，不依赖第二周自定义接口包，因此可以独立构建。前两周的工程保留，不覆盖。
+本周在主仓库下新建 `~/ROS-Learning/ros2_week3_ws`，包名为 `diff_drive_lab`。外层 `~/ROS-Learning` 是 Git 仓库根目录，`ros2_week3_ws` 是普通 ROS 工作空间目录；提交源码时使用外层仓库，不在工作空间里再次 `git init`。它只使用 ROS 标准接口，不依赖第二周自定义接口包，因此可以独立构建。前两周的工程保留，不覆盖。若此前在仓库外建立了 `~/ros2_week3_ws`，请先将需要保留的源码、配置、笔记和数据复制到新路径，并按新路径更新环境脚本。
 
 | 终端 | 用途 |
 |---|---|
@@ -194,16 +194,16 @@ sudo apt update
 sudo apt install -y ros-dev-tools build-essential cmake \
   ros-jazzy-rviz2 ros-jazzy-robot-state-publisher \
   ros-jazzy-tf2-ros ros-jazzy-tf2-tools ros-jazzy-tf2-geometry-msgs graphviz
-mkdir -p ~/ros2_week3_ws/src ~/ros2_week3_ws/notes ~/ros2_week3_ws/bags
-cd ~/ros2_week3_ws/src
+mkdir -p ~/ROS-Learning/ros2_week3_ws/src ~/ROS-Learning/ros2_week3_ws/notes ~/ROS-Learning/ros2_week3_ws/bags
+cd ~/ROS-Learning/ros2_week3_ws/src
 ros2 pkg create --build-type ament_cmake --license Apache-2.0 diff_drive_lab
-mkdir -p ~/ros2_week3_ws/src/diff_drive_lab/include/diff_drive_lab
-mkdir -p ~/ros2_week3_ws/src/diff_drive_lab/test
+mkdir -p ~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/include/diff_drive_lab
+mkdir -p ~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/test
 ```
 
-应输出 `jazzy`。已有包就不重复执行 `pkg create`。VSCode 打开整个 `~/ros2_week3_ws` 文件夹；继续用终端的 colcon 构建，不用单文件“Run Code”按钮代替 ROS 包构建。
+应输出 `jazzy`。已有包就不重复执行 `pkg create`。VSCode 打开整个 `~/ROS-Learning/ros2_week3_ws` 文件夹；继续用终端的 colcon 构建，不用单文件“Run Code”按钮代替 ROS 包构建。
 
-保存到 **`~/ros2_week3_ws/setup_build.bash`**：
+保存到 **`~/ROS-Learning/ros2_week3_ws/setup_build.bash`**：
 
 ```bash
 source /opt/ros/jazzy/setup.bash
@@ -212,22 +212,24 @@ unset ROS_LOCALHOST_ONLY ROS_STATIC_PEERS
 export ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST
 ```
 
-保存到 **`~/ros2_week3_ws/setup_run.bash`**：
+保存到 **`~/ROS-Learning/ros2_week3_ws/setup_run.bash`**：
 
 ```bash
-source "$HOME/ros2_week3_ws/setup_build.bash"
-if [ ! -f "$HOME/ros2_week3_ws/install/local_setup.bash" ]; then
-  echo "Build ~/ros2_week3_ws before loading its runtime environment"
+source "$HOME/ROS-Learning/ros2_week3_ws/setup_build.bash"
+if [ ! -f "$HOME/ROS-Learning/ros2_week3_ws/install/local_setup.bash" ]; then
+  echo "Build ~/ROS-Learning/ros2_week3_ws before loading its runtime environment"
   return 1
 fi
-source "$HOME/ros2_week3_ws/install/local_setup.bash"
+source "$HOME/ROS-Learning/ros2_week3_ws/install/local_setup.bash"
 ```
 
 构建终端只加载本周 build 脚本，不先加载本周 overlay。运行终端在构建后 source run 脚本。不要把第二周和第三周工作空间的自动加载行不断叠加进 `.bashrc`；本周只需要基础 Jazzy 和当前工作空间。
 
+若从旧路径复制工作空间，保留源码、配置、笔记和数据，重新保存上述环境脚本；不要复制旧的 `build/`、`install/`、`log/`。旧构建产物可能包含原来的绝对路径，应在新路径重新构建后再加载运行环境。
+
 ### 1.6 完整数学核心
 
-保存到 **`~/ros2_week3_ws/src/diff_drive_lab/include/diff_drive_lab/diff_drive.hpp`**：
+保存到 **`~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/include/diff_drive_lab/diff_drive.hpp`**：
 
 ```cpp
 #pragma once
@@ -340,7 +342,7 @@ private:
 
 ### 1.7 完整数值测试
 
-保存到 **`~/ros2_week3_ws/src/diff_drive_lab/test/test_kinematics.cpp`**：
+保存到 **`~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/test/test_kinematics.cpp`**：
 
 ```cpp
 #include <cmath>
@@ -402,7 +404,7 @@ int main()
 }
 ```
 
-完整替换 **`~/ros2_week3_ws/src/diff_drive_lab/CMakeLists.txt`**：
+完整替换 **`~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/CMakeLists.txt`**：
 
 ```cmake
 cmake_minimum_required(VERSION 3.8)
@@ -433,7 +435,7 @@ add_math_test(test_kinematics)
 ament_package()
 ```
 
-完整替换 **`~/ros2_week3_ws/src/diff_drive_lab/package.xml`**：
+完整替换 **`~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/package.xml`**：
 
 ```xml
 <?xml version="1.0"?>
@@ -467,8 +469,8 @@ rosdep update
 BUILD：
 
 ```bash
-source ~/ros2_week3_ws/setup_build.bash
-cd ~/ros2_week3_ws
+source ~/ROS-Learning/ros2_week3_ws/setup_build.bash
+cd ~/ROS-Learning/ros2_week3_ws
 rosdep install --from-paths src --ignore-src -r -y --rosdistro jazzy
 colcon build --symlink-install --packages-up-to diff_drive_lab \
   --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
@@ -477,7 +479,7 @@ colcon build --symlink-install --packages-up-to diff_drive_lab \
 C：
 
 ```bash
-source ~/ros2_week3_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week3_ws/setup_run.bash
 ros2 run diff_drive_lab test_kinematics
 ```
 
@@ -532,7 +534,7 @@ Twist 本身没有 Header，不包含时间戳和坐标系字符串。将命令�
 
 ### 2.3 完整指令缓存类
 
-保存到 **`~/ros2_week3_ws/src/diff_drive_lab/include/diff_drive_lab/command_buffer.hpp`**：
+保存到 **`~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/include/diff_drive_lab/command_buffer.hpp`**：
 
 ```cpp
 #pragma once
@@ -606,7 +608,7 @@ private:
 
 ### 2.4 完整命令观察节点
 
-保存到 **`~/ros2_week3_ws/src/diff_drive_lab/src/cmd_probe.cpp`**：
+保存到 **`~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/src/cmd_probe.cpp`**：
 
 ```cpp
 #include <algorithm>
@@ -666,7 +668,7 @@ int main(int argc, char * argv[])
 
 ### 2.5 完整边界测试与构建文件
 
-保存到 **`~/ros2_week3_ws/src/diff_drive_lab/test/test_command_buffer.cpp`**：
+保存到 **`~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/test/test_command_buffer.cpp`**：
 
 ```cpp
 #include <cmath>
@@ -704,7 +706,7 @@ int main()
 }
 ```
 
-完整替换 **`~/ros2_week3_ws/src/diff_drive_lab/CMakeLists.txt`**：
+完整替换 **`~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/CMakeLists.txt`**：
 
 ```cmake
 cmake_minimum_required(VERSION 3.8)
@@ -743,7 +745,7 @@ add_ros_node(cmd_probe)
 ament_package()
 ```
 
-完整替换 **`~/ros2_week3_ws/src/diff_drive_lab/package.xml`**：
+完整替换 **`~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/package.xml`**：
 
 ```xml
 <?xml version="1.0"?>
@@ -765,8 +767,8 @@ ament_package()
 BUILD：
 
 ```bash
-source ~/ros2_week3_ws/setup_build.bash
-cd ~/ros2_week3_ws
+source ~/ROS-Learning/ros2_week3_ws/setup_build.bash
+cd ~/ROS-Learning/ros2_week3_ws
 rosdep install --from-paths src --ignore-src -r -y --rosdistro jazzy
 colcon build --symlink-install --packages-up-to diff_drive_lab \
   --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
@@ -775,7 +777,7 @@ colcon build --symlink-install --packages-up-to diff_drive_lab \
 C：
 
 ```bash
-source ~/ros2_week3_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week3_ws/setup_run.bash
 ros2 run diff_drive_lab test_command_buffer
 ```
 
@@ -786,14 +788,14 @@ ros2 run diff_drive_lab test_command_buffer
 A：
 
 ```bash
-source ~/ros2_week3_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week3_ws/setup_run.bash
 ros2 run diff_drive_lab cmd_probe
 ```
 
 开始没有指令，日志应一直显示 v=0、w=0。B：
 
 ```bash
-source ~/ros2_week3_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week3_ws/setup_run.bash
 ros2 topic pub --rate 20 /cmd_vel geometry_msgs/msg/Twist \
   '{linear: {x: 0.2}, angular: {z: 0.5}}'
 ```
@@ -801,7 +803,7 @@ ros2 topic pub --rate 20 /cmd_vel geometry_msgs/msg/Twist \
 A 应显示 `applied v=0.200 m/s w=0.500 rad/s`。C 可运行：
 
 ```bash
-source ~/ros2_week3_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week3_ws/setup_run.bash
 ros2 topic info /cmd_vel --verbose
 ```
 
@@ -935,7 +937,7 @@ Pose 和 Twist 各有 36 个数，按 6×6 矩阵逐行排列。顺序为 x、y�
 
 ### 3.7 完整仿真节点
 
-保存到 **`~/ros2_week3_ws/src/diff_drive_lab/src/diff_drive_node.cpp`**：
+保存到 **`~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/src/diff_drive_node.cpp`**：
 
 ```cpp
 #include <algorithm>
@@ -1070,7 +1072,7 @@ private:
 
   void publish_state(diff_drive_lab::WheelSpeeds actual_wheels)
   {
-    const auto stamp = now().to_msg();
+    const auto stamp = now();
     const auto pose = model_->pose();
     const auto body = model_->forward(actual_wheels);
     tf2::Quaternion orientation;
@@ -1159,11 +1161,13 @@ int main(int argc, char * argv[])
 
 这里明确把限幅后的轮速称为 `actual_wheels`，因为理想模型假定它立刻执行。若要接电机动态与 PID，应在“目标轮速 → actual_wheels”之间插入那一层，而不是让 odom 仍用未执行的目标值。
 
+`const auto stamp = now()` 只读取一次节点时间；把同一份 `rclcpp::Time` 赋给三个消息的 `header.stamp` 时，会自动转换为消息时间类型。Jazzy 的 C++ `rclcpp::Time` 没有 Python 中的 `to_msg()` 成员。
+
 JointState 的 `position` 是累计轮角，`velocity` 是轮角速度；名字与数值按数组下标一一对应，`effort` 留空表示没有提供力矩数据。第 5 天会把这些名字接到 URDF 关节。
 
 ### 3.8 构建配置
 
-完整替换 **`~/ros2_week3_ws/src/diff_drive_lab/CMakeLists.txt`**：
+完整替换 **`~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/CMakeLists.txt`**：
 
 ```cmake
 cmake_minimum_required(VERSION 3.8)
@@ -1209,7 +1213,7 @@ add_ros_node(diff_drive_node)
 ament_package()
 ```
 
-完整替换 **`~/ros2_week3_ws/src/diff_drive_lab/package.xml`**：
+完整替换 **`~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/package.xml`**：
 
 ```xml
 <?xml version="1.0"?>
@@ -1237,8 +1241,8 @@ ament_package()
 BUILD：
 
 ```bash
-source ~/ros2_week3_ws/setup_build.bash
-cd ~/ros2_week3_ws
+source ~/ROS-Learning/ros2_week3_ws/setup_build.bash
+cd ~/ROS-Learning/ros2_week3_ws
 rosdep install --from-paths src --ignore-src -r -y --rosdistro jazzy
 colcon build --symlink-install --packages-up-to diff_drive_lab \
   --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
@@ -1249,14 +1253,14 @@ colcon build --symlink-install --packages-up-to diff_drive_lab \
 先停止第 2 天的 cmd_probe。A：
 
 ```bash
-source ~/ros2_week3_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week3_ws/setup_run.bash
 ros2 run diff_drive_lab diff_drive_node
 ```
 
 C：
 
 ```bash
-source ~/ros2_week3_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week3_ws/setup_run.bash
 ros2 topic echo /odom --once
 ros2 topic echo /joint_states --once
 ros2 run tf2_ros tf2_echo odom base_link
@@ -1267,7 +1271,7 @@ ros2 run tf2_ros tf2_echo odom base_link
 B：
 
 ```bash
-source ~/ros2_week3_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week3_ws/setup_run.bash
 ros2 topic pub --rate 20 /cmd_vel geometry_msgs/msg/Twist \
   '{linear: {x: 0.2}, angular: {z: 0.0}}'
 ```
@@ -1397,7 +1401,7 @@ $$y_o=x_b\sin\theta+y_b\cos\theta+2.$$
 先结束旧节点，重新启动 A 的 `diff_drive_node`，不发运动指令。D：
 
 ```bash
-source ~/ros2_week3_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week3_ws/setup_run.bash
 ros2 run tf2_ros static_transform_publisher \
   --x 0.12 --y 0.0 --z 0.18 \
   --roll 0.0 --pitch 0.0 --yaw 0.0 \
@@ -1409,7 +1413,7 @@ ros2 run tf2_ros static_transform_publisher \
 C：
 
 ```bash
-source ~/ros2_week3_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week3_ws/setup_run.bash
 ros2 run tf2_ros tf2_echo base_link sensor_link
 ```
 
@@ -1423,7 +1427,7 @@ ros2 run tf2_ros tf2_echo odom sensor_link
 
 ### 4.5 完整点坐标变换节点
 
-保存到 **`~/ros2_week3_ws/src/diff_drive_lab/src/frame_probe.cpp`**：
+保存到 **`~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/src/frame_probe.cpp`**：
 
 ```cpp
 #include <chrono>
@@ -1492,7 +1496,7 @@ int main(int argc, char * argv[])
 
 ### 4.6 更新构建文件
 
-完整替换 **`~/ros2_week3_ws/src/diff_drive_lab/CMakeLists.txt`**：
+完整替换 **`~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/CMakeLists.txt`**：
 
 ```cmake
 cmake_minimum_required(VERSION 3.8)
@@ -1540,7 +1544,7 @@ add_ros_node(frame_probe)
 ament_package()
 ```
 
-完整替换 **`~/ros2_week3_ws/src/diff_drive_lab/package.xml`**：
+完整替换 **`~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/package.xml`**：
 
 ```xml
 <?xml version="1.0"?>
@@ -1569,8 +1573,8 @@ ament_package()
 BUILD：
 
 ```bash
-source ~/ros2_week3_ws/setup_build.bash
-cd ~/ros2_week3_ws
+source ~/ROS-Learning/ros2_week3_ws/setup_build.bash
+cd ~/ROS-Learning/ros2_week3_ws
 rosdep install --from-paths src --ignore-src -r -y --rosdistro jazzy
 colcon build --symlink-install --packages-up-to diff_drive_lab \
   --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
@@ -1579,7 +1583,7 @@ colcon build --symlink-install --packages-up-to diff_drive_lab \
 B：
 
 ```bash
-source ~/ros2_week3_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week3_ws/setup_run.bash
 ros2 run diff_drive_lab frame_probe
 ```
 
@@ -1596,8 +1600,8 @@ ros2 topic echo /sensor_point_odom --once
 C：
 
 ```bash
-mkdir -p ~/ros2_week3_ws/notes/tf
-cd ~/ros2_week3_ws/notes/tf
+mkdir -p ~/ROS-Learning/ros2_week3_ws/notes/tf
+cd ~/ROS-Learning/ros2_week3_ws/notes/tf
 ros2 run tf2_tools view_frames
 ```
 
@@ -1667,13 +1671,13 @@ flowchart TD
 BUILD：
 
 ```bash
-mkdir -p ~/ros2_week3_ws/src/diff_drive_lab/urdf
-mkdir -p ~/ros2_week3_ws/src/diff_drive_lab/config
-mkdir -p ~/ros2_week3_ws/src/diff_drive_lab/launch
-mkdir -p ~/ros2_week3_ws/src/diff_drive_lab/rviz
+mkdir -p ~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/urdf
+mkdir -p ~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/config
+mkdir -p ~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/launch
+mkdir -p ~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/rviz
 ```
 
-保存到 **`~/ros2_week3_ws/src/diff_drive_lab/urdf/robot.urdf`**：
+保存到 **`~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/urdf/robot.urdf`**：
 
 ```xml
 <?xml version="1.0"?>
@@ -1785,7 +1789,7 @@ URDF 中的 velocity/effort 限制声明不会自动替我们的 C++ 节点限�
 
 ### 5.5 完整轨迹记录节点
 
-保存到 **`~/ros2_week3_ws/src/diff_drive_lab/src/path_trace.cpp`**：
+保存到 **`~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/src/path_trace.cpp`**：
 
 ```cpp
 #include <cmath>
@@ -1838,7 +1842,7 @@ public:
         (void)request;
         path_.poses.clear();
         path_.header.frame_id = "odom";
-        path_.header.stamp = now().to_msg();
+        path_.header.stamp = now();
         publisher_->publish(path_);
         response->success = true;
         response->message = "Path history cleared";
@@ -1869,7 +1873,7 @@ int main(int argc, char * argv[])
 
 ### 5.6 完整运行配置
 
-保存到 **`~/ros2_week3_ws/src/diff_drive_lab/config/robot.yaml`**：
+保存到 **`~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/config/robot.yaml`**：
 
 ```yaml
 /diff_drive_node:
@@ -1890,7 +1894,7 @@ int main(int argc, char * argv[])
 
 所有数值参数在本节点都声明为 double，因此更新频率也写 `50.0`。参数文件顶层 `/diff_drive_node` 要匹配实际节点名，`ros__parameters` 中间有两个下划线。
 
-保存到 **`~/ros2_week3_ws/src/diff_drive_lab/rviz/robot.rviz`**：
+保存到 **`~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/rviz/robot.rviz`**：
 
 ```yaml
 Panels:
@@ -1956,7 +1960,7 @@ Window Geometry:
 
 这份文件预置 Grid、RobotModel、TF、Path，Fixed Frame 为 odom。RobotModel 从 `/robot_description` 读取 URDF 字符串；该描述话题使用 transient local，便于后启动的 RViz 获取最近描述。
 
-保存到 **`~/ros2_week3_ws/src/diff_drive_lab/launch/sim.launch.py`**：
+保存到 **`~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/launch/sim.launch.py`**：
 
 ```python
 from pathlib import Path
@@ -2011,7 +2015,7 @@ launch 默认打开 RViz。`rviz:=false` 可以只启动模型与计算节点，
 
 ### 5.7 完整构建配置与安装
 
-完整替换 **`~/ros2_week3_ws/src/diff_drive_lab/CMakeLists.txt`**：
+完整替换 **`~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/CMakeLists.txt`**：
 
 ```cmake
 cmake_minimum_required(VERSION 3.8)
@@ -2062,7 +2066,7 @@ install(DIRECTORY launch config urdf rviz DESTINATION share/${PROJECT_NAME})
 ament_package()
 ```
 
-完整替换 **`~/ros2_week3_ws/src/diff_drive_lab/package.xml`**：
+完整替换 **`~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/package.xml`**：
 
 ```xml
 <?xml version="1.0"?>
@@ -2096,8 +2100,8 @@ ament_package()
 BUILD：
 
 ```bash
-source ~/ros2_week3_ws/setup_build.bash
-cd ~/ros2_week3_ws
+source ~/ROS-Learning/ros2_week3_ws/setup_build.bash
+cd ~/ROS-Learning/ros2_week3_ws
 rosdep install --from-paths src --ignore-src -r -y --rosdistro jazzy
 colcon build --symlink-install --packages-up-to diff_drive_lab \
   --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
@@ -2110,7 +2114,7 @@ colcon build --symlink-install --packages-up-to diff_drive_lab \
 A：
 
 ```bash
-source ~/ros2_week3_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week3_ws/setup_run.bash
 ros2 launch diff_drive_lab sim.launch.py
 ```
 
@@ -2131,7 +2135,7 @@ ros2 launch diff_drive_lab sim.launch.py
 C：
 
 ```bash
-source ~/ros2_week3_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week3_ws/setup_run.bash
 ros2 node list
 ros2 topic echo /joint_states --once
 ros2 run tf2_ros tf2_echo odom left_wheel_link
@@ -2144,7 +2148,7 @@ ros2 run tf2_ros tf2_echo odom left_wheel_link
 B：
 
 ```bash
-source ~/ros2_week3_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week3_ws/setup_run.bash
 ros2 topic pub --rate 20 /cmd_vel geometry_msgs/msg/Twist \
   '{linear: {x: 0.2}, angular: {z: 0.5}}'
 ```
@@ -2173,9 +2177,9 @@ ros2 launch diff_drive_lab sim.launch.py rviz:=false
 若 odom 和 TF 都正常，再排查显示。VMware 中常见问题是图形驱动或 OpenGL 兼容，可另开终端尝试软件渲染：
 
 ```bash
-source ~/ros2_week3_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week3_ws/setup_run.bash
 LIBGL_ALWAYS_SOFTWARE=1 ros2 run rviz2 rviz2 \
-  -d ~/ros2_week3_ws/src/diff_drive_lab/rviz/robot.rviz
+  -d ~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/rviz/robot.rviz
 ```
 
 这个环境变量只影响本次命令。若提示没有显示服务，确认在 Ubuntu 图形桌面的终端启动，而不是没有 GUI 转发的纯 SSH 会话。图形问题不会使已经通过的数学测试失效；继续用 odom、JointState 和 tf2_echo 分层定位。
@@ -2252,7 +2256,7 @@ $$v=\min(0.8\rho,0.25)\max(0,\cos\alpha).$$
 
 ### 6.4 完整纯 C++ 控制律
 
-保存到 **`~/ros2_week3_ws/src/diff_drive_lab/include/diff_drive_lab/goal_control.hpp`**：
+保存到 **`~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/include/diff_drive_lab/goal_control.hpp`**：
 
 ```cpp
 #pragma once
@@ -2307,7 +2311,7 @@ inline GoalOutput goal_control(const Pose2D & pose, const GoalSettings & goal)
 
 ### 6.5 完整目标点节点
 
-保存到 **`~/ros2_week3_ws/src/diff_drive_lab/src/go_to_goal.cpp`**：
+保存到 **`~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/src/go_to_goal.cpp`**：
 
 ```cpp
 #include <chrono>
@@ -2442,7 +2446,7 @@ int main(int argc, char * argv[])
 
 ### 6.6 完整闭环数值测试
 
-保存到 **`~/ros2_week3_ws/src/diff_drive_lab/test/test_goal_control.cpp`**：
+保存到 **`~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/test/test_goal_control.cpp`**：
 
 ```cpp
 #include <cmath>
@@ -2478,7 +2482,7 @@ int main()
 
 它把控制律与理想模型直接连接，使用固定 0.02 s 步长，最多模拟 60 秒。测试既检查第一步应先左转，也检查最终位置误差进入容差，不依赖 ROS 图形界面。
 
-完整替换 **`~/ros2_week3_ws/src/diff_drive_lab/CMakeLists.txt`**：
+完整替换 **`~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/CMakeLists.txt`**：
 
 ```cmake
 cmake_minimum_required(VERSION 3.8)
@@ -2531,7 +2535,7 @@ install(DIRECTORY launch config urdf rviz DESTINATION share/${PROJECT_NAME})
 ament_package()
 ```
 
-完整替换 **`~/ros2_week3_ws/src/diff_drive_lab/package.xml`**：
+完整替换 **`~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/package.xml`**：
 
 ```xml
 <?xml version="1.0"?>
@@ -2567,8 +2571,8 @@ ament_package()
 BUILD：
 
 ```bash
-source ~/ros2_week3_ws/setup_build.bash
-cd ~/ros2_week3_ws
+source ~/ROS-Learning/ros2_week3_ws/setup_build.bash
+cd ~/ROS-Learning/ros2_week3_ws
 rosdep install --from-paths src --ignore-src -r -y --rosdistro jazzy
 colcon build --symlink-install --packages-up-to diff_drive_lab \
   --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
@@ -2577,7 +2581,7 @@ colcon build --symlink-install --packages-up-to diff_drive_lab \
 C：
 
 ```bash
-source ~/ros2_week3_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week3_ws/setup_run.bash
 ros2 run diff_drive_lab test_goal_control
 ```
 
@@ -2588,21 +2592,21 @@ ros2 run diff_drive_lab test_goal_control
 结束所有旧速度发布者、旧控制器和旧 launch。A 重新启动：
 
 ```bash
-source ~/ros2_week3_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week3_ws/setup_run.bash
 ros2 launch diff_drive_lab sim.launch.py
 ```
 
 C 确认当前只有预期的速度源；此时尚未启动控制器，通常 Publisher count 为 0：
 
 ```bash
-source ~/ros2_week3_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week3_ws/setup_run.bash
 ros2 topic info /cmd_vel --verbose
 ```
 
 B：
 
 ```bash
-source ~/ros2_week3_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week3_ws/setup_run.bash
 ros2 run diff_drive_lab go_to_goal --ros-args -p goal_x:=1.0 -p goal_y:=1.0
 ```
 
@@ -2689,7 +2693,7 @@ B 保持失败状态时重新启动 A，不会自动恢复旧目标。然后结�
 运行终端：
 
 ```bash
-source ~/ros2_week3_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week3_ws/setup_run.bash
 ros2 run diff_drive_lab test_kinematics
 ros2 run diff_drive_lab test_command_buffer
 ros2 run diff_drive_lab test_goal_control
@@ -2702,7 +2706,7 @@ ros2 run diff_drive_lab test_goal_control
 若想验证核心没有暗中依赖 ROS，可用普通 g++ 单独构建：
 
 ```bash
-cd ~/ros2_week3_ws
+cd ~/ROS-Learning/ros2_week3_ws
 g++ -std=c++17 -Wall -Wextra -Wpedantic -Werror \
   -I src/diff_drive_lab/include \
   src/diff_drive_lab/test/test_kinematics.cpp -o /tmp/week3_kinematics_test
@@ -2727,7 +2731,7 @@ g++ -std=c++17 -Wall -Wextra -Wpedantic -Werror \
 
 静态变换和模型描述使用 transient local。我们显式给录制/回放设置相应 QoS，并且先开录制再启动系统，减少漏掉启动数据的机会。
 
-保存到 **`~/ros2_week3_ws/src/diff_drive_lab/config/bag_qos.yaml`**：
+保存到 **`~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/config/bag_qos.yaml`**：
 
 ```yaml
 /tf_static:
@@ -2751,8 +2755,8 @@ g++ -std=c++17 -Wall -Wextra -Wpedantic -Werror \
 D 先开始录制：
 
 ```bash
-source ~/ros2_week3_ws/setup_run.bash
-cd ~/ros2_week3_ws
+source ~/ROS-Learning/ros2_week3_ws/setup_run.bash
+cd ~/ROS-Learning/ros2_week3_ws
 ros2 bag record -o bags/goal_run_01 \
   --qos-profile-overrides-path src/diff_drive_lab/config/bag_qos.yaml \
   --topics /cmd_vel /odom /tf /tf_static /joint_states /robot_description /path
@@ -2763,14 +2767,14 @@ ros2 bag record -o bags/goal_run_01 \
 A：
 
 ```bash
-source ~/ros2_week3_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week3_ws/setup_run.bash
 ros2 launch diff_drive_lab sim.launch.py
 ```
 
 等模型和 TF 状态正常后，B：
 
 ```bash
-source ~/ros2_week3_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week3_ws/setup_run.bash
 ros2 run diff_drive_lab go_to_goal --ros-args -p goal_x:=1.0 -p goal_y:=1.0
 ```
 
@@ -2783,8 +2787,8 @@ ros2 run diff_drive_lab go_to_goal --ros-args -p goal_x:=1.0 -p goal_y:=1.0
 C：
 
 ```bash
-source ~/ros2_week3_ws/setup_run.bash
-ros2 bag info ~/ros2_week3_ws/bags/goal_run_01
+source ~/ROS-Learning/ros2_week3_ws/setup_run.bash
+ros2 bag info ~/ROS-Learning/ros2_week3_ws/bags/goal_run_01
 ```
 
 检查上述七个话题是否在记录中，特别是 `/tf_static` 与 `/robot_description` 是否有消息。数据大小和各话题数量受运行时间影响，不给固定答案。若缺少模型或静态数据，先修复录制条件再进行可视化回放。
@@ -2796,9 +2800,9 @@ ros2 bag info ~/ros2_week3_ws/bags/goal_run_01
 C 单独打开回放查看器：
 
 ```bash
-source ~/ros2_week3_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week3_ws/setup_run.bash
 ros2 run rviz2 rviz2 \
-  -d ~/ros2_week3_ws/src/diff_drive_lab/rviz/robot.rviz \
+  -d ~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/rviz/robot.rviz \
   --ros-args -r __node:=replay_rviz -p use_sim_time:=true
 ```
 
@@ -2807,10 +2811,10 @@ ros2 run rviz2 rviz2 \
 D：
 
 ```bash
-source ~/ros2_week3_ws/setup_run.bash
-ros2 bag play ~/ros2_week3_ws/bags/goal_run_01 \
+source ~/ROS-Learning/ros2_week3_ws/setup_run.bash
+ros2 bag play ~/ROS-Learning/ros2_week3_ws/bags/goal_run_01 \
   --clock 50 \
-  --qos-profile-overrides-path ~/ros2_week3_ws/src/diff_drive_lab/config/bag_qos.yaml
+  --qos-profile-overrides-path ~/ROS-Learning/ros2_week3_ws/src/diff_drive_lab/config/bag_qos.yaml
 ```
 
 bag 按记录重新发布消息，并用 `/clock` 发布回放时间；RViz 的 `use_sim_time=true` 使它使用同一条时间线。应重新看到小车的运动、轮子转动与轨迹。
@@ -2881,7 +2885,7 @@ $$\Delta\phi=2\pi\frac{ticks_{new}-ticks_{old}}{N},\qquad
 
 ### 7.9 实验报告模板
 
-保存到 **`~/ros2_week3_ws/notes/week3-report.md`**，填写自己的实际运行结果：
+保存到 **`~/ROS-Learning/ros2_week3_ws/notes/week3-report.md`**，填写自己的实际运行结果：
 
 ```markdown
 # ROS 2 第三周实验报告
@@ -2933,28 +2937,30 @@ $$\Delta\phi=2\pi\frac{ticks_{new}-ticks_{old}}{N},\qquad
 
 ### 7.10 保留可恢复版本
 
-如果本周工作空间尚未由已有 Git 仓库管理，可建立本地仓库。保存 **`~/ros2_week3_ws/.gitignore`**：
+本周工作空间由外层 `~/ROS-Learning` Git 仓库统一管理。确认主仓库的 **`~/ROS-Learning/.gitignore`** 包含下列规则；若已有内容，补齐即可：
 
 ```gitignore
-/build/
-/install/
-/log/
-/bags/
+**/build/
+**/install/
+**/log/
+**/bags/
 __pycache__/
 *.pyc
 ```
 
-然后：
+在主仓库根目录提交第三周源码、环境脚本和笔记：
 
 ```bash
-cd ~/ros2_week3_ws
-git init
-git add src notes setup_build.bash setup_run.bash .gitignore
+cd ~/ROS-Learning
+git add .gitignore ros2_week3_ws/src ros2_week3_ws/setup_build.bash ros2_week3_ws/setup_run.bash
+if [ -d ros2_week3_ws/notes ]; then
+  git add ros2_week3_ws/notes
+fi
 git status --short
 git commit -m "Complete ROS 2 week 3 differential-drive lab"
 ```
 
-若已有仓库，沿用现有提交方式，不额外建立嵌套仓库。Git 作者信息使用你自己的配置；本步骤仅为本地提交，不需要发布远端。bag 保留在本地数据目录，不必直接加入普通源码仓库。
+Git 作者信息使用你自己的配置；需要上传 GitHub 时，在主仓库目录执行 `git push`。`colcon build` 仍在 `~/ROS-Learning/ros2_week3_ws` 执行，Git 操作则在外层 `~/ROS-Learning` 执行。bag 保留在本地数据目录，通常不加入普通源码仓库。
 
 <a id="exam"></a>
 
@@ -3085,7 +3091,7 @@ URDF 字符串输出比较长，只需要确认能收到完整描述和正确机
 第一条真正的编译 error 通常比最后的 Failed 更有用。需要直接看构建过程时：
 
 ```bash
-cd ~/ros2_week3_ws
+cd ~/ROS-Learning/ros2_week3_ws
 colcon build --symlink-install --packages-up-to diff_drive_lab \
   --event-handlers console_direct+ \
   --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
@@ -3094,7 +3100,7 @@ colcon build --symlink-install --packages-up-to diff_drive_lab \
 VSCode 使用的编译数据库路径应为：
 
 ```text
-~/ros2_week3_ws/build/diff_drive_lab/compile_commands.json
+~/ROS-Learning/ros2_week3_ws/build/diff_drive_lab/compile_commands.json
 ```
 
 如果沿用第二周的 C/C++ 扩展配置，记得把里面的 `robot_cpp_basics` 改为 `diff_drive_lab`，并把工作文件夹切到本周根目录。编辑器红线与真正的编译失败不是同一种证据，不要为消除索引问题随意复制系统头文件。
@@ -3111,7 +3117,7 @@ VSCode 使用的编译数据库路径应为：
 
 ### 最终文件索引
 
-以下相对路径均以 `~/ros2_week3_ws` 为根：
+以下相对路径均以 `~/ROS-Learning/ros2_week3_ws` 为根：
 
 | 文件 | 本手册位置 |
 |---|---|
@@ -3143,8 +3149,8 @@ VSCode 使用的编译数据库路径应为：
 
 | 目的 | 命令 |
 |---|---|
-| 加载构建环境 | `source ~/ros2_week3_ws/setup_build.bash` |
-| 加载运行环境 | `source ~/ros2_week3_ws/setup_run.bash` |
+| 加载构建环境 | `source ~/ROS-Learning/ros2_week3_ws/setup_build.bash` |
+| 加载运行环境 | `source ~/ROS-Learning/ros2_week3_ws/setup_run.bash` |
 | 构建 | 根目录运行 `colcon build --symlink-install --packages-up-to diff_drive_lab` |
 | 启动整套系统 | `ros2 launch diff_drive_lab sim.launch.py` |
 | 不打开 RViz | `ros2 launch diff_drive_lab sim.launch.py rviz:=false` |
@@ -3213,6 +3219,6 @@ ros2 topic pub --once /cmd_vel geometry_msgs/msg/Twist \
 - **S9：RViz 配置与模型描述。** [官方 URDF 教程 RViz 配置](https://github.com/ros/urdf_tutorial/blob/ros2/rviz/urdf.rviz)，[Jazzy RobotModel 显示实现](https://github.com/ros2/rviz/blob/jazzy/rviz_default_plugins/src/rviz_default_plugins/displays/robot_model/robot_model_display.cpp)。
 - **S10：标准差速控制器接口。** [Jazzy diff_drive_controller](https://control.ros.org/jazzy/doc/ros2_controllers/diff_drive_controller/doc/userdoc.html)。本手册的 diff_drive_lab 是教学节点，不是该控制器的替代安装说明。
 - **S11：rosbag2。** [Jazzy record 命令实现](https://github.com/ros2/rosbag2/blob/jazzy/ros2bag/ros2bag/verb/record.py)，[Jazzy play 命令实现](https://github.com/ros2/rosbag2/blob/jazzy/ros2bag/ros2bag/verb/play.py)。
-- **S12：ROS 时间。** [Clock and Time 设计文档](https://design.ros2.org/articles/clock_and_time.html)。
+- **S12：ROS 时间。** [Clock and Time 设计文档](https://design.ros2.org/articles/clock_and_time.html)，[Jazzy rclcpp::Time 源码与消息类型转换](https://github.com/ros2/rclcpp/blob/jazzy/rclcpp/include/rclcpp/time.hpp)。
 
 本周结束时，应能把一个错误具体定位为“模型公式、指令输入、状态输出、时间戳、TF、机器人描述或可视化配置”的某一层，并用最小实验验证它。这是后续做仿真、建图、导航与真实机器人接入时可以继续复用的能力。

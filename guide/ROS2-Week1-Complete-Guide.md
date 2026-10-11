@@ -4,7 +4,7 @@
 > 实践环境：Ubuntu 24.04 Desktop、Bash、ROS 2 Jazzy，所有节点运行在同一台 Ubuntu 虚拟机内。  
 > 安排：6 天正式学习，每天约 2.5～3 小时；第 7 天可用于复习和补做。首次下载、安装及网络排障可能额外耗时。  
 > 本周结果：能独立启动、观察、控制、配置、记录和回放一个 ROS 2 系统，具备下周编写 C++ 节点的基础。  
-> 内容核对日期：2026-09-22。
+> 内容核对日期：2026-10-11。
 
 这是一份可以按顺序学习的讲义，包含知识解释、完整命令、操作前提、预期现象、例题、练习、答案和排错方法。末尾的来源用于追溯与扩展，完成本周不要求打开它们。
 
@@ -70,15 +70,15 @@
 
 ### 全周统一工作目录
 
-第 1 天会创建 `~/ros2_week1`。`~` 代表你的 Ubuntu 用户主目录，例如 `/home/你的用户名`。
+第 1 天会创建 `~/ROS-Learning/ros2_week1`。`~` 代表你的 Ubuntu 用户主目录，例如 `/home/你的用户名`；外层 `~/ROS-Learning` 是你的 Git 仓库根目录，三周的学习目录统一放在它下面。若此前按旧版使用 `~/ros2_week1`，请先把需要保留的配置、launch、笔记和 bag 复制到新路径，再使用本版命令。
 
 | 路径 | 作用 |
 |---|---|
-| `~/ros2_week1/setup_env.bash` | 各终端统一环境 |
-| `~/ros2_week1/config` | 参数 YAML 文件 |
-| `~/ros2_week1/launch` | 启动文件 |
-| `~/ros2_week1/bags` | 录制数据 |
-| `~/ros2_week1/notes` | 知识与实验记录 |
+| `~/ROS-Learning/ros2_week1/setup_env.bash` | 各终端统一环境 |
+| `~/ROS-Learning/ros2_week1/config` | 参数 YAML 文件 |
+| `~/ROS-Learning/ros2_week1/launch` | 启动文件 |
+| `~/ROS-Learning/ros2_week1/bags` | 录制数据 |
+| `~/ROS-Learning/ros2_week1/notes` | 知识与实验记录 |
 
 这个目录是学习材料目录，还不是需要用 `colcon` 编译的 ROS 2 工作空间。
 
@@ -232,9 +232,9 @@ sudo apt install -y \
 运行一次，创建学习目录和环境脚本：
 
 ```bash
-mkdir -p ~/ros2_week1/{config,launch,bags,notes}
+mkdir -p ~/ROS-Learning/ros2_week1/{config,launch,bags,notes}
 
-cat > ~/ros2_week1/setup_env.bash <<'EOF'
+cat > ~/ROS-Learning/ros2_week1/setup_env.bash <<'EOF'
 source /opt/ros/jazzy/setup.bash
 export ROS_DOMAIN_ID=42
 unset ROS_LOCALHOST_ONLY ROS_STATIC_PEERS
@@ -253,8 +253,8 @@ EOF
 **以后每新开一个终端，先运行下面两行：**
 
 ```bash
-source ~/ros2_week1/setup_env.bash
-cd ~/ros2_week1
+source ~/ROS-Learning/ros2_week1/setup_env.bash
+cd ~/ROS-Learning/ros2_week1
 ```
 
 然后验证：
@@ -276,14 +276,14 @@ ros2 --help
 终端 A：
 
 ```bash
-source ~/ros2_week1/setup_env.bash
+source ~/ROS-Learning/ros2_week1/setup_env.bash
 ros2 run demo_nodes_cpp talker
 ```
 
 终端 B：
 
 ```bash
-source ~/ros2_week1/setup_env.bash
+source ~/ROS-Learning/ros2_week1/setup_env.bash
 ros2 run demo_nodes_cpp listener
 ```
 
@@ -292,7 +292,7 @@ ros2 run demo_nodes_cpp listener
 终端 C：
 
 ```bash
-source ~/ros2_week1/setup_env.bash
+source ~/ROS-Learning/ros2_week1/setup_env.bash
 ros2 node list
 ros2 topic list
 ros2 topic echo /chatter --once
@@ -316,7 +316,7 @@ data: 'Hello World: 7'
 终端 A：
 
 ```bash
-source ~/ros2_week1/setup_env.bash
+source ~/ROS-Learning/ros2_week1/setup_env.bash
 ros2 run turtlesim turtlesim_node
 ```
 
@@ -325,7 +325,7 @@ ros2 run turtlesim turtlesim_node
 终端 B：
 
 ```bash
-source ~/ros2_week1/setup_env.bash
+source ~/ROS-Learning/ros2_week1/setup_env.bash
 ros2 run turtlesim turtle_teleop_key
 ```
 
@@ -345,7 +345,7 @@ ros2 run turtlesim turtle_teleop_key
 终端 C：
 
 ```bash
-source ~/ros2_week1/setup_env.bash
+source ~/ROS-Learning/ros2_week1/setup_env.bash
 ros2 node list
 ros2 topic list
 ```
@@ -361,7 +361,7 @@ ros2 topic list
 **答案：**它们是独立启动的程序，结束键盘控制程序不会自动结束仿真器。
 
 **练习 3：**新终端出现 `ros2: command not found`，第一步做什么？  
-**答案：**先 `source ~/ros2_week1/setup_env.bash`，再尝试 `ros2 --help`。不要立即重装。
+**答案：**先 `source ~/ROS-Learning/ros2_week1/setup_env.bash`，再尝试 `ros2 --help`。不要立即重装。
 
 **练习 4：**如果 A 使用通信域 42，B 使用 43，它们是否会正常发现彼此？  
 **答案：**这两个不同域中的节点不会按本周的默认配置互相发现。所有实验终端要统一环境并重启旧进程。
@@ -381,29 +381,29 @@ ros2 topic list
 终端 A：
 
 ```bash
-source ~/ros2_week1/setup_env.bash
+source ~/ROS-Learning/ros2_week1/setup_env.bash
 ros2 run turtlesim turtlesim_node
 ```
 
 终端 B：
 
 ```bash
-source ~/ros2_week1/setup_env.bash
+source ~/ROS-Learning/ros2_week1/setup_env.bash
 ros2 run turtlesim turtle_teleop_key
 ```
 
 终端 C：
 
 ```bash
-source ~/ros2_week1/setup_env.bash
-cd ~/ros2_week1
+source ~/ROS-Learning/ros2_week1/setup_env.bash
+cd ~/ROS-Learning/ros2_week1
 ```
 
 ### 2.2 六个名词，必须分开
 
 | 名词 | 含义 | 本周例子 |
 |---|---|---|
-| 工作空间 Workspace | 组织自己开发的一组功能包及构建产物的目录 | 下周创建的 `ros2_ws` |
+| 工作空间 Workspace | 组织自己开发的一组功能包及构建产物的目录 | 下周使用的 `~/ROS-Learning/ros2_week2_ws` |
 | 功能包 Package | 按功能组织代码、接口、配置和安装信息的单位 | `turtlesim` |
 | 可执行文件 Executable | 可以启动的程序入口 | `turtlesim_node`、`turtle_teleop_key` |
 | 进程 Process | 操作系统中运行起来的程序实例 | 由一次 `ros2 run` 启动的程序通常形成一个进程 |
@@ -468,7 +468,7 @@ ros2 node info /teleop_turtle
 在终端 D 运行：
 
 ```bash
-source ~/ros2_week1/setup_env.bash
+source ~/ROS-Learning/ros2_week1/setup_env.bash
 ros2 run rqt_graph rqt_graph
 ```
 
@@ -547,7 +547,7 @@ ROS 2 常用的 DDS 通信实现支持发现与数据传输，本周不用手写
 
 `colcon` 负责组织多个包的构建；C++ 包里仍会使用 CMake，`ament_cmake` 提供 ROS 2 包的相关支持。你已有的 CMake 知识会继续使用。
 
-今天只需要理解关系，正式创建、编译 C++ 包放在下周。本周的 `~/ros2_week1` 不需要为了“看起来完整”而提前创建空的 build/install/log 目录。
+今天只需要理解关系，正式创建、编译 C++ 包放在下周。本周的 `~/ROS-Learning/ros2_week1` 不需要为了“看起来完整”而提前创建空的 build/install/log 目录。
 
 ### 2.9 当天练习与答案
 
@@ -581,15 +581,15 @@ ROS 2 常用的 DDS 通信实现支持发现与数据传输，本周不用手写
 终端 A：
 
 ```bash
-source ~/ros2_week1/setup_env.bash
+source ~/ROS-Learning/ros2_week1/setup_env.bash
 ros2 run turtlesim turtlesim_node
 ```
 
 终端 B、C 都先运行：
 
 ```bash
-source ~/ros2_week1/setup_env.bash
-cd ~/ros2_week1
+source ~/ROS-Learning/ros2_week1/setup_env.bash
+cd ~/ROS-Learning/ros2_week1
 ```
 
 ### 3.2 Topic 和 Message 到底是什么
@@ -886,15 +886,15 @@ ros2 topic pub --times 5 --rate 10 /turtle1/cmd_vel geometry_msgs/msg/Twist '{}'
 终端 A：
 
 ```bash
-source ~/ros2_week1/setup_env.bash
+source ~/ROS-Learning/ros2_week1/setup_env.bash
 ros2 run turtlesim turtlesim_node
 ```
 
 终端 B、C：
 
 ```bash
-source ~/ros2_week1/setup_env.bash
-cd ~/ros2_week1
+source ~/ROS-Learning/ros2_week1/setup_env.bash
+cd ~/ROS-Learning/ros2_week1
 ```
 
 ### 4.2 Service：一次请求，一次响应
@@ -1076,8 +1076,8 @@ ros2 param get /turtlesim background_r
 先把当前节点参数导出为快照：
 
 ```bash
-ros2 param dump /turtlesim > ~/ros2_week1/config/turtlesim_snapshot.yaml
-cat ~/ros2_week1/config/turtlesim_snapshot.yaml
+ros2 param dump /turtlesim > ~/ROS-Learning/ros2_week1/config/turtlesim_snapshot.yaml
+cat ~/ROS-Learning/ros2_week1/config/turtlesim_snapshot.yaml
 ```
 
 `>` 把命令标准输出写到文件；同名文件已存在会被覆盖。这里是你本次实验使用的参数快照。
@@ -1085,7 +1085,7 @@ cat ~/ros2_week1/config/turtlesim_snapshot.yaml
 导出的完整快照可能包含一些只读参数，例如 QoS 覆盖项。为了避免把它们也拿来运行时修改，本例另建一个只包含需要管理的参数的文件：
 
 ```bash
-cat > ~/ros2_week1/config/turtlesim.yaml <<'EOF'
+cat > ~/ROS-Learning/ros2_week1/config/turtlesim.yaml <<'EOF'
 /turtlesim:
   ros__parameters:
     background_r: 40
@@ -1110,7 +1110,7 @@ EOF
 
 ```bash
 ros2 param set /turtlesim background_r 180
-ros2 param load /turtlesim ~/ros2_week1/config/turtlesim.yaml
+ros2 param load /turtlesim ~/ROS-Learning/ros2_week1/config/turtlesim.yaml
 ros2 param get /turtlesim background_r
 ```
 
@@ -1122,7 +1122,7 @@ ros2 param get /turtlesim background_r
 
 ```bash
 ros2 run turtlesim turtlesim_node --ros-args \
-  --params-file ~/ros2_week1/config/turtlesim.yaml
+  --params-file ~/ROS-Learning/ros2_week1/config/turtlesim.yaml
 ```
 
 终端 B 验证：
@@ -1184,15 +1184,15 @@ ros2 service call /practice_turtle/set_pen turtlesim/srv/SetPen \
 结束旧的仿真、键盘程序、持续发布者。终端 A 启动一个默认海龟：
 
 ```bash
-source ~/ros2_week1/setup_env.bash
+source ~/ROS-Learning/ros2_week1/setup_env.bash
 ros2 run turtlesim turtlesim_node
 ```
 
 终端 B、C 先加载环境，再继续：
 
 ```bash
-source ~/ros2_week1/setup_env.bash
-cd ~/ros2_week1
+source ~/ROS-Learning/ros2_week1/setup_env.bash
+cd ~/ROS-Learning/ros2_week1
 ```
 
 ### 5.2 Action 为什么存在
@@ -1310,7 +1310,7 @@ ros2 run turtlesim turtle_teleop_key
 先在 A 中关闭默认仿真，确认 B 的键盘程序也已退出。终端 C 创建 launch 文件：
 
 ```bash
-cat > ~/ros2_week1/launch/two_turtles.launch.py <<'EOF'
+cat > ~/ROS-Learning/ros2_week1/launch/two_turtles.launch.py <<'EOF'
 from launch import LaunchDescription
 from launch_ros.actions import Node
 
@@ -1363,8 +1363,8 @@ EOF
 终端 A：
 
 ```bash
-source ~/ros2_week1/setup_env.bash
-ros2 launch ~/ros2_week1/launch/two_turtles.launch.py
+source ~/ROS-Learning/ros2_week1/setup_env.bash
+ros2 launch ~/ROS-Learning/ros2_week1/launch/two_turtles.launch.py
 ```
 
 本周直接通过文件路径运行 launch，不需要先做成自己的功能包。下一周再学习把 launch 文件安装进包并通过包名启动。
@@ -1391,7 +1391,7 @@ ros2 param get /blue/sim background_b
 终端 B：
 
 ```bash
-source ~/ros2_week1/setup_env.bash
+source ~/ROS-Learning/ros2_week1/setup_env.bash
 ros2 run turtlesim turtle_teleop_key --ros-args -r __ns:=/blue
 ```
 
@@ -1542,15 +1542,15 @@ ros2 run turtlesim turtlesim_node --ros-args --log-level debug
 终端 A：
 
 ```bash
-source ~/ros2_week1/setup_env.bash
+source ~/ROS-Learning/ros2_week1/setup_env.bash
 ros2 run turtlesim turtlesim_node
 ```
 
 终端 C：
 
 ```bash
-source ~/ros2_week1/setup_env.bash
-cd ~/ros2_week1
+source ~/ROS-Learning/ros2_week1/setup_env.bash
+cd ~/ROS-Learning/ros2_week1
 ros2 param set /turtlesim background_r 40
 ros2 param set /turtlesim background_g 50
 ros2 param set /turtlesim background_b 70
@@ -1571,8 +1571,8 @@ ros2 topic echo /turtle1/pose --once
 终端 B：
 
 ```bash
-source ~/ros2_week1/setup_env.bash
-cd ~/ros2_week1
+source ~/ROS-Learning/ros2_week1/setup_env.bash
+cd ~/ROS-Learning/ros2_week1
 ros2 bag record -s mcap -o bags/circle_run_01 \
   --topics /turtle1/cmd_vel /turtle1/pose
 ```
@@ -1617,15 +1617,15 @@ ros2 topic pub --once --wait-matching-subscriptions 2 \
 确保停止指令已发出，在 C 中保存一次终点观测：
 
 ```bash
-ros2 topic echo /turtle1/pose --once > ~/ros2_week1/notes/circle_end_original.txt
+ros2 topic echo /turtle1/pose --once > ~/ROS-Learning/ros2_week1/notes/circle_end_original.txt
 ```
 
 然后在 B 中按 `Ctrl+C`，让录制器正常收尾并写入元数据。回到 C：
 
 ```bash
-ros2 bag info ~/ros2_week1/bags/circle_run_01
-ros2 bag info ~/ros2_week1/bags/circle_run_01 \
-  > ~/ros2_week1/notes/circle_bag_info.txt
+ros2 bag info ~/ROS-Learning/ros2_week1/bags/circle_run_01
+ros2 bag info ~/ROS-Learning/ros2_week1/bags/circle_run_01 \
+  > ~/ROS-Learning/ros2_week1/notes/circle_bag_info.txt
 ```
 
 应该能看到：存储格式、持续时间、总消息数、话题列表，以及各话题消息类型与数量。确认 `/turtle1/cmd_vel` 和 `/turtle1/pose` 都有大于 0 的消息数。
@@ -1650,7 +1650,7 @@ ros2 topic echo /turtle1/pose --once
 终端 B 播放：
 
 ```bash
-ros2 bag play ~/ros2_week1/bags/circle_run_01 \
+ros2 bag play ~/ROS-Learning/ros2_week1/bags/circle_run_01 \
   --topics /turtle1/cmd_vel
 ```
 
@@ -1658,9 +1658,9 @@ ros2 bag play ~/ros2_week1/bags/circle_run_01 \
 
 ```bash
 ros2 topic pub --once /turtle1/cmd_vel geometry_msgs/msg/Twist '{}'
-ros2 topic echo /turtle1/pose --once > ~/ros2_week1/notes/circle_end_replay.txt
-cat ~/ros2_week1/notes/circle_end_original.txt
-cat ~/ros2_week1/notes/circle_end_replay.txt
+ros2 topic echo /turtle1/pose --once > ~/ROS-Learning/ros2_week1/notes/circle_end_replay.txt
+cat ~/ROS-Learning/ros2_week1/notes/circle_end_original.txt
+cat ~/ROS-Learning/ros2_week1/notes/circle_end_replay.txt
 ```
 
 比较两次终点。正常的观察重点是运动顺序和几何形状相似，不要求每个浮点数都相同。
@@ -1680,7 +1680,7 @@ ros2 topic echo /turtle1/pose turtlesim/msg/Pose
 终端 B 再启动播放：
 
 ```bash
-ros2 bag play ~/ros2_week1/bags/circle_run_01 --topics /turtle1/pose
+ros2 bag play ~/ROS-Learning/ros2_week1/bags/circle_run_01 --topics /turtle1/pose
 ```
 
 预期：没有海龟仿真窗口，但 C 能看到历史姿态序列。它显示的是录制时的数据，不是此刻有一只真实海龟正在运动。
@@ -1733,7 +1733,7 @@ ros2 node info /turtlesim
 
 ### 6.12 实验记录模板
 
-在 `~/ros2_week1/notes/week1-report.md` 中写一份简短报告。可以用 VSCode 新建该文件，下面是可复制的内容模板：
+在 `~/ROS-Learning/ros2_week1/notes/week1-report.md` 中写一份简短报告。可以用 VSCode 新建该文件，下面是可复制的内容模板：
 
 ```text
 # ROS 2 第一周实验记录
@@ -1921,7 +1921,7 @@ ros2 topic info /turtle1/cmd_vel --verbose
 先执行：
 
 ```bash
-source ~/ros2_week1/setup_env.bash
+source ~/ROS-Learning/ros2_week1/setup_env.bash
 ros2 --help
 ```
 
@@ -1937,7 +1937,7 @@ dpkg -s ros-jazzy-desktop
 ### 问题 2：`Package 'turtlesim' not found` 或找不到可执行文件
 
 ```bash
-source ~/ros2_week1/setup_env.bash
+source ~/ROS-Learning/ros2_week1/setup_env.bash
 ros2 pkg executables turtlesim
 ```
 
@@ -2020,7 +2020,7 @@ Jazzy 本手册使用 `turtlesim/msg/Pose`、`turtlesim/srv/Spawn`、`turtlesim/
 ```bash
 ros2 param describe /turtlesim background_r
 ros2 param get /turtlesim background_r
-cat ~/ros2_week1/config/turtlesim.yaml
+cat ~/ROS-Learning/ros2_week1/config/turtlesim.yaml
 ```
 
 `ros__parameters` 是两个下划线；节点名要匹配；文件缩进使用空格。`ros2 param set` 的修改不会自动写回 YAML 文件。
@@ -2056,10 +2056,10 @@ echo "$WAYLAND_DISPLAY"
 
 ```bash
 sudo apt install ros-jazzy-rosbag2-storage-mcap
-source ~/ros2_week1/setup_env.bash
+source ~/ROS-Learning/ros2_week1/setup_env.bash
 ```
 
-不要把录制器创建的目录提前建好；只需要父目录 `~/ros2_week1/bags` 存在。
+不要把录制器创建的目录提前建好；只需要父目录 `~/ROS-Learning/ros2_week1/bags` 存在。
 
 ### 问题 13：回放与原轨迹不一致
 
@@ -2143,8 +2143,8 @@ curl -I --connect-timeout 10 https://github.com
 
 | 目的 | 示例命令 |
 |---|---|
-| 新终端加载本周环境 | `source ~/ros2_week1/setup_env.bash` |
-| 进入学习目录 | `cd ~/ros2_week1` |
+| 新终端加载本周环境 | `source ~/ROS-Learning/ros2_week1/setup_env.bash` |
+| 进入学习目录 | `cd ~/ROS-Learning/ros2_week1` |
 | 查 ROS 发行版 | `echo "$ROS_DISTRO"` |
 | 启动节点程序 | `ros2 run turtlesim turtlesim_node` |
 | 列出包的程序 | `ros2 pkg executables turtlesim` |
@@ -2166,14 +2166,14 @@ curl -I --connect-timeout 10 https://github.com
 | 读参数 | `ros2 param get /turtlesim background_r` |
 | 改参数 | `ros2 param set /turtlesim background_r 40` |
 | 导出参数 | `ros2 param dump /turtlesim` |
-| 加载精简参数文件 | `ros2 param load /turtlesim ~/ros2_week1/config/turtlesim.yaml` |
+| 加载精简参数文件 | `ros2 param load /turtlesim ~/ROS-Learning/ros2_week1/config/turtlesim.yaml` |
 | 查看 Action | `ros2 action list -t` |
 | 查看 Action 端点 | `ros2 action info /turtle1/rotate_absolute` |
-| 启动本周 launch | `ros2 launch ~/ros2_week1/launch/two_turtles.launch.py` |
+| 启动本周 launch | `ros2 launch ~/ROS-Learning/ros2_week1/launch/two_turtles.launch.py` |
 | 查看图 | `ros2 run rqt_graph rqt_graph` |
 | 查看日志 | `ros2 run rqt_console rqt_console` |
-| 查看录制信息 | `ros2 bag info ~/ros2_week1/bags/circle_run_01` |
-| 回放速度 | `ros2 bag play ~/ros2_week1/bags/circle_run_01 --topics /turtle1/cmd_vel` |
+| 查看录制信息 | `ros2 bag info ~/ROS-Learning/ros2_week1/bags/circle_run_01` |
+| 回放速度 | `ros2 bag play ~/ROS-Learning/ros2_week1/bags/circle_run_01 --topics /turtle1/cmd_vel` |
 
 想查看本机已安装版本的选项，可以使用 `ros2 topic pub --help`、`ros2 bag record --help` 等。这是本地帮助，不需要联网；本手册涉及的实践命令已经给全，不要求你自己读完全部帮助页。
 
@@ -2275,7 +2275,7 @@ ros2 topic bw /turtle1/pose
 
 ### 第二周从哪里开始
 
-下一步创建真正的 `ros2_ws/src` 工作空间，用 `ament_cmake` 建立 C++ 包，编写自己的发布者、订阅者与定时器回调。
+下一步在 `~/ROS-Learning/ros2_week2_ws/src` 下组织功能包，用 `ament_cmake` 建立 C++ 包，编写自己的发布者、订阅者与定时器回调。Git 操作在外层 `~/ROS-Learning` 执行，`colcon build` 在该 ROS 工作空间根目录执行。
 
 建议第一项编程练习复用你第一个项目的经验：一个 C++ 节点产生模拟传感器数据，另一个节点接收并处理。随后学习参数、服务与自定义消息；再把第二个项目的差速算法接进来。
 

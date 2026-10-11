@@ -4,9 +4,9 @@
 > 环境：Ubuntu 24.04、Bash、ROS 2 Jazzy；继续使用第一周的 Ubuntu 虚拟机即可。  
 > 安排：7 天，共约 21～25 小时；其中第 5 天的 Action 可以分成两个半天。编译下载和意外排障另计。  
 > 完成结果：一套能发布数据、滤波、查询统计、调整参数、执行可取消采集任务，并通过 launch 一次启动的 ROS 2 工程。  
-> 内容核对日期：2026-09-22。
+> 内容核对日期：2026-10-11。
 
-本手册给出本周需要的解释、完整文件、命令、例题、练习答案和排错顺序。末尾资料链接用于追溯，**完成课程不要求再去查资料或寻找示例代码**。下载 ROS 依赖仍需要联网 .
+本手册给出本周需要的解释、完整文件、命令、例题、练习答案和排错顺序。末尾资料链接用于追溯，**完成课程不要求再去查资料或寻找示例代码**。下载 ROS 依赖仍需要联网。
 
 本周从最小例子逐步扩展同一个工程。文件发生变化时，会给出需要替换的完整版本；看到“完整替换”时，覆盖那个文件的全部内容。不要把前后两个版本的同名类拼到一起。
 
@@ -854,7 +854,7 @@ private:
   void publish_sample()
   {
     robot_interfaces::msg::SensorSample sample;
-    sample.header.stamp = now().to_msg();
+    sample.header.stamp = now();
     sample.header.frame_id = "virtual_sensor";
     sample.sequence = ++sequence_;
     const double phase = static_cast<double>(sequence_ % 100) * 0.2;
@@ -884,7 +884,7 @@ int main(int argc, char * argv[])
 
 数据公式是“基准 25°C + 正弦变化 + 正负交替扰动”。这是一组可重复的教学数据，不是严格的真实传感器模型。每第 10 条消息设置 `valid=false`；仍然发布，便于验证下游拒绝逻辑。
 
-`now().to_msg()` 把当前节点时钟值写入消息。默认未启用仿真时间时使用系统时间；若以后启用 `use_sim_time`，节点时间会受 `/clock` 影响。设置了 Header 不会自动做时钟同步。
+`now()` 返回 C++ 的 `rclcpp::Time`，赋给 `header.stamp` 时通过转换运算符变为 `builtin_interfaces::msg::Time`。Jazzy 的 C++ `rclcpp::Time` 没有 `to_msg()` 成员；不要把 Python `rclpy` 的 `now().to_msg()` 写法用于本节 C++ 代码。默认未启用仿真时间时使用系统时间；若以后启用 `use_sim_time`，节点时间会受 `/clock` 影响。设置了 Header 不会自动做时钟同步。
 
 `frame_id="virtual_sensor"` 只填入名称，**不会自动发布 TF**。这里的温度是标量，不涉及向量坐标变换；保留 Header 是为了建立传感器数据的组织习惯。
 
@@ -1260,7 +1260,7 @@ public:
       "sensor/raw", rclcpp::QoS(10).reliable());
     timer_ = create_wall_timer(std::chrono::milliseconds(period_ms), [this]() {
       robot_interfaces::msg::SensorSample message;
-      message.header.stamp = now().to_msg();
+      message.header.stamp = now();
       message.header.frame_id = "virtual_sensor";
       message.sequence = ++sequence_;
       const double phase = static_cast<double>(sequence_ % 100) * 0.2;
@@ -2557,10 +2557,10 @@ ros2 topic hz /robot1/sensor/filtered
 ```bash
 cd ~/ROS-Learning/ros2_week2_ws
 ros2 bag record -o bags/sensor_run_01 \
-  /robot1/sensor/raw /robot1/sensor/filtered
+  --topics /robot1/sensor/raw /robot1/sensor/filtered
 ```
 
-等待约 15 秒，按 `Ctrl+C` 停止录制，等待程序正常关闭。输出目录必须尚不存在；重复实验改成 `sensor_run_02` 等编号，不要覆盖之前的记录。
+等待约 15 秒，按 `Ctrl+C` 停止录制，等待程序正常关闭。`--topics` 明确指定录制话题；当前 Jazzy 将不带该选项的位置参数写法标为弃用。输出目录必须尚不存在；重复实验改成 `sensor_run_02` 等编号，不要覆盖之前的记录。
 
 ```bash
 ros2 bag info ~/ROS-Learning/ros2_week2_ws/bags/sensor_run_01
@@ -3205,5 +3205,6 @@ colcon build --symlink-install --packages-up-to robot_cpp_basics --cmake-clean-c
 - **S9：launch 与参数配置。** [Using ROS 2 launch for large projects](https://docs.ros.org/en/jazzy/Tutorials/Intermediate/Launch/Using-ROS2-Launch-For-Large-Projects.html)。
 - **S10：录制回放和 CLI 参数。** [Recording and playing back data](https://docs.ros.org/en/jazzy/Tutorials/Beginner-CLI-Tools/Recording-And-Playing-Back-Data/Recording-And-Playing-Back-Data.html)，[ros2 topic pub 的 Jazzy 实现](https://github.com/ros2/ros2cli/blob/jazzy/ros2topic/ros2topic/verb/pub.py)，[ros2 bag play 的 Jazzy 实现](https://github.com/ros2/rosbag2/blob/jazzy/ros2bag/ros2bag/verb/play.py)。
 - **S11：VSCode C++ 配置。** [C++ extension settings reference](https://code.visualstudio.com/docs/cpp/customize-cpp-settings)。
+- **S12：C++ 时间转换。** [Jazzy rclcpp::Time 源码](https://github.com/ros2/rclcpp/blob/jazzy/rclcpp/include/rclcpp/time.hpp)，该类型提供到 `builtin_interfaces::msg::Time` 的转换运算符；`to_msg()` 不属于它的 C++ API。
 
 手册中的示例程序面向教学：只接受一个采集目标，统计和滤波都保存在内存中，重启会丢失；未实现持久化、序号去重、真实设备接入或硬实时控制。你已经拥有扩展这些能力所需的基本 ROS 接入方式，后续应按具体机器人需求逐项设计和验证。
