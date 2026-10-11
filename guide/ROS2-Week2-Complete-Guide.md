@@ -58,7 +58,7 @@
 - `Ctrl+C` 是按键，用来结束当前持续运行的程序。
 - 每天开始前，结束上一天的实验节点，避免同名节点或多个发布者影响结果。
 
-本周工作空间固定为 `~/ros2_week2_ws`。不要把文档中助手侧的文件路径用作 Ubuntu 工作空间；`~` 始终指你在 Ubuntu 内的用户主目录。
+本周工作空间固定为 `~/ROS-Learning/ros2_week2_ws`。外层 `~/ROS-Learning` 是 Git 仓库根目录，`ros2_week2_ws` 是 ROS 工作空间；两者的操作位置不同，Git 提交步骤见第 7 天第 7.8 节。不要把文档中助手侧的文件路径用作 Ubuntu 工作空间；`~` 始终指你在 Ubuntu 内的用户主目录。
 
 | 终端 | 主要用途 | 应加载的环境 |
 |---|---|---|
@@ -118,7 +118,7 @@ flowchart TD
 
 | 名称 | 本周实例 | 你怎样理解 |
 |---|---|---|
-| 工作空间 workspace | `~/ros2_week2_ws` | 管理一批包及其构建、安装结果的目录 |
+| 工作空间 workspace | `~/ROS-Learning/ros2_week2_ws` | 管理一批包及其构建、安装结果的目录 |
 | 功能包 package | `robot_cpp_basics` | 有 `package.xml` 的代码组织单位 |
 | CMake | `CMakeLists.txt` | 描述源文件、依赖、编译目标和安装位置 |
 | ament_cmake | CMake 中的 `ament_*` 接口 | 给普通 CMake 加上 ROS 包集成与导出能力 |
@@ -146,14 +146,14 @@ source /opt/ros/jazzy/setup.bash
 echo "$ROS_DISTRO"
 sudo apt update
 sudo apt install -y ros-dev-tools build-essential cmake
-mkdir -p ~/ros2_week2_ws/src
-mkdir -p ~/ros2_week2_ws/notes ~/ros2_week2_ws/bags
-cd ~/ros2_week2_ws
+mkdir -p ~/ROS-Learning/ros2_week2_ws/src
+mkdir -p ~/ROS-Learning/ros2_week2_ws/notes ~/ROS-Learning/ros2_week2_ws/bags
+cd ~/ROS-Learning/ros2_week2_ws
 ```
 
 `echo "$ROS_DISTRO"` 应输出 `jazzy`。如果 `/opt/ros/jazzy/setup.bash` 不存在，需要先完成第一周安装步骤；不要用 Humble 的文件替代 Jazzy。
 
-保存到 **`~/ros2_week2_ws/setup_build.bash`**：
+保存到 **`~/ROS-Learning/ros2_week2_ws/setup_build.bash`**：
 
 ```bash
 source /opt/ros/jazzy/setup.bash
@@ -162,15 +162,15 @@ unset ROS_LOCALHOST_ONLY ROS_STATIC_PEERS
 export ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST
 ```
 
-保存到 **`~/ros2_week2_ws/setup_run.bash`**：
+保存到 **`~/ROS-Learning/ros2_week2_ws/setup_run.bash`**：
 
 ```bash
-source "$HOME/ros2_week2_ws/setup_build.bash"
-if [ ! -f "$HOME/ros2_week2_ws/install/local_setup.bash" ]; then
-  echo "Build the workspace first: ~/ros2_week2_ws/install/local_setup.bash is missing"
+source "$HOME/ROS-Learning/ros2_week2_ws/setup_build.bash"
+if [ ! -f "$HOME/ROS-Learning/ros2_week2_ws/install/local_setup.bash" ]; then
+  echo "Build the workspace first: ~/ROS-Learning/ros2_week2_ws/install/local_setup.bash is missing"
   return 1
 fi
-source "$HOME/ros2_week2_ws/install/local_setup.bash"
+source "$HOME/ROS-Learning/ros2_week2_ws/install/local_setup.bash"
 ```
 
 以后构建终端用第一份，运行终端用第二份。脚本必须用 `source` 加载，不能只执行 `bash setup_run.bash`；后者的环境变化不会留在当前 shell。
@@ -197,17 +197,17 @@ rosdep update
 BUILD 终端：
 
 ```bash
-source ~/ros2_week2_ws/setup_build.bash
-cd ~/ros2_week2_ws/src
+source ~/ROS-Learning/ros2_week2_ws/setup_build.bash
+cd ~/ROS-Learning/ros2_week2_ws/src
 ros2 pkg create --build-type ament_cmake --license Apache-2.0 \
   robot_cpp_basics --dependencies rclcpp
-mkdir -p ~/ros2_week2_ws/src/robot_cpp_basics/include/robot_cpp_basics
-cd ~/ros2_week2_ws
+mkdir -p ~/ROS-Learning/ros2_week2_ws/src/robot_cpp_basics/include/robot_cpp_basics
+cd ~/ROS-Learning/ros2_week2_ws
 ```
 
-若包已经存在，不要重复创建；从保存文件继续。用 VSCode 的“打开文件夹”打开 Ubuntu 内的 `~/ros2_week2_ws`，让源码、配置和终端处于同一个环境。
+若包已经存在，不要重复创建；从保存文件继续。用 VSCode 的“打开文件夹”打开 Ubuntu 内的 `~/ROS-Learning/ros2_week2_ws`，让源码、配置和终端处于同一个环境。
 
-保存到 **`~/ros2_week2_ws/src/robot_cpp_basics/src/hello_node.cpp`**：
+保存到 **`~/ROS-Learning/ros2_week2_ws/src/robot_cpp_basics/src/hello_node.cpp`**：
 
 ```cpp
 #include <chrono>
@@ -245,7 +245,7 @@ int main(int argc, char * argv[])
 }
 ```
 
-完整替换 **`~/ros2_week2_ws/src/robot_cpp_basics/CMakeLists.txt`**：
+完整替换 **`~/ROS-Learning/ros2_week2_ws/src/robot_cpp_basics/CMakeLists.txt`**：
 
 ```cmake
 cmake_minimum_required(VERSION 3.8)
@@ -273,7 +273,7 @@ add_lesson_node(hello_node)
 ament_package()
 ```
 
-完整替换 **`~/ros2_week2_ws/src/robot_cpp_basics/package.xml`**：
+完整替换 **`~/ROS-Learning/ros2_week2_ws/src/robot_cpp_basics/package.xml`**：
 
 ```xml
 <?xml version="1.0"?>
@@ -336,7 +336,7 @@ timer_ = create_wall_timer(std::chrono::seconds(1), [this]() { /* 回调内容 *
 BUILD：
 
 ```bash
-cd ~/ros2_week2_ws
+cd ~/ROS-Learning/ros2_week2_ws
 rosdep install --from-paths src --ignore-src -r -y --rosdistro jazzy
 colcon build --symlink-install --packages-select robot_cpp_basics \
   --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
@@ -349,7 +349,7 @@ colcon build --symlink-install --packages-select robot_cpp_basics \
 新开运行终端 A：
 
 ```bash
-source ~/ros2_week2_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week2_ws/setup_run.bash
 ros2 pkg executables robot_cpp_basics
 ros2 run robot_cpp_basics hello_node
 ```
@@ -365,7 +365,7 @@ ros2 run robot_cpp_basics hello_node
 新开 C：
 
 ```bash
-source ~/ros2_week2_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week2_ws/setup_run.bash
 ros2 node list
 ros2 node info /hello_node
 ```
@@ -384,7 +384,7 @@ ros2 node info /hello_node
 
 **练习 B：构建成功，却显示 `Package 'robot_cpp_basics' not found`，先做什么？**
 
-答案：在当前运行终端执行 `source ~/ros2_week2_ws/setup_run.bash`，再执行 `ros2 pkg prefix robot_cpp_basics`；应指向本周工作空间的安装目录。先核对环境，不要立刻重装 ROS。
+答案：在当前运行终端执行 `source ~/ROS-Learning/ros2_week2_ws/setup_run.bash`，再执行 `ros2 pkg prefix robot_cpp_basics`；应指向本周工作空间的安装目录。先核对环境，不要立刻重装 ROS。
 
 **今日验收：**
 
@@ -429,7 +429,7 @@ ros2 node info /hello_node
 
 记当前窗口为 `values`，则平均值为 `所有窗口元素之和 / 当前元素数量`。队列超过窗口长度时，先删除最旧的值。
 
-保存到 **`~/ros2_week2_ws/src/robot_cpp_basics/include/robot_cpp_basics/moving_average.hpp`**：
+保存到 **`~/ROS-Learning/ros2_week2_ws/src/robot_cpp_basics/include/robot_cpp_basics/moving_average.hpp`**：
 
 ```cpp
 #pragma once
@@ -488,7 +488,7 @@ private:
 
 ### 2.3 完整发布者
 
-保存到 **`~/ros2_week2_ws/src/robot_cpp_basics/src/number_publisher.cpp`**：
+保存到 **`~/ROS-Learning/ros2_week2_ws/src/robot_cpp_basics/src/number_publisher.cpp`**：
 
 ```cpp
 #include <chrono>
@@ -536,7 +536,7 @@ int main(int argc, char * argv[])
 
 ### 2.4 完整订阅者
 
-保存到 **`~/ros2_week2_ws/src/robot_cpp_basics/src/number_subscriber.cpp`**：
+保存到 **`~/ROS-Learning/ros2_week2_ws/src/robot_cpp_basics/src/number_subscriber.cpp`**：
 
 ```cpp
 #include <cmath>
@@ -587,7 +587,7 @@ int main(int argc, char * argv[])
 
 ### 2.5 更新构建文件
 
-完整替换 **`~/ros2_week2_ws/src/robot_cpp_basics/CMakeLists.txt`**：
+完整替换 **`~/ROS-Learning/ros2_week2_ws/src/robot_cpp_basics/CMakeLists.txt`**：
 
 ```cmake
 cmake_minimum_required(VERSION 3.8)
@@ -618,7 +618,7 @@ add_lesson_node(number_subscriber)
 ament_package()
 ```
 
-完整替换 **`~/ros2_week2_ws/src/robot_cpp_basics/package.xml`**：
+完整替换 **`~/ROS-Learning/ros2_week2_ws/src/robot_cpp_basics/package.xml`**：
 
 ```xml
 <?xml version="1.0"?>
@@ -642,8 +642,8 @@ ament_package()
 BUILD：
 
 ```bash
-source ~/ros2_week2_ws/setup_build.bash
-cd ~/ros2_week2_ws
+source ~/ROS-Learning/ros2_week2_ws/setup_build.bash
+cd ~/ROS-Learning/ros2_week2_ws
 rosdep install --from-paths src --ignore-src -r -y --rosdistro jazzy
 colcon build --symlink-install --packages-select robot_cpp_basics \
   --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
@@ -656,21 +656,21 @@ colcon build --symlink-install --packages-select robot_cpp_basics \
 B：
 
 ```bash
-source ~/ros2_week2_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week2_ws/setup_run.bash
 ros2 run robot_cpp_basics number_subscriber
 ```
 
 A：
 
 ```bash
-source ~/ros2_week2_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week2_ws/setup_run.bash
 ros2 run robot_cpp_basics number_publisher
 ```
 
 C：
 
 ```bash
-source ~/ros2_week2_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week2_ws/setup_run.bash
 ros2 topic list -t
 ros2 topic info /numbers --verbose
 ros2 topic echo /numbers --once
@@ -759,13 +759,13 @@ ros2 run robot_cpp_basics number_publisher --ros-args \
 结束第 2 天的发布者和订阅者。BUILD：
 
 ```bash
-source ~/ros2_week2_ws/setup_build.bash
-cd ~/ros2_week2_ws/src
+source ~/ROS-Learning/ros2_week2_ws/setup_build.bash
+cd ~/ROS-Learning/ros2_week2_ws/src
 ros2 pkg create --build-type ament_cmake --license Apache-2.0 robot_interfaces
-mkdir -p ~/ros2_week2_ws/src/robot_interfaces/msg
+mkdir -p ~/ROS-Learning/ros2_week2_ws/src/robot_interfaces/msg
 ```
 
-保存到 **`~/ros2_week2_ws/src/robot_interfaces/msg/SensorSample.msg`**：
+保存到 **`~/ROS-Learning/ros2_week2_ws/src/robot_interfaces/msg/SensorSample.msg`**：
 
 ```text
 std_msgs/Header header
@@ -774,7 +774,7 @@ float64 temperature_c
 bool valid
 ```
 
-完整替换 **`~/ros2_week2_ws/src/robot_interfaces/CMakeLists.txt`**：
+完整替换 **`~/ROS-Learning/ros2_week2_ws/src/robot_interfaces/CMakeLists.txt`**：
 
 ```cmake
 cmake_minimum_required(VERSION 3.8)
@@ -793,7 +793,7 @@ ament_export_dependencies(rosidl_default_runtime)
 ament_package()
 ```
 
-完整替换 **`~/ros2_week2_ws/src/robot_interfaces/package.xml`**：
+完整替换 **`~/ROS-Learning/ros2_week2_ws/src/robot_interfaces/package.xml`**：
 
 ```xml
 <?xml version="1.0"?>
@@ -828,7 +828,7 @@ ament_package()
 
 ### 3.3 完整传感器发布者
 
-保存到 **`~/ros2_week2_ws/src/robot_cpp_basics/src/sensor_publisher.cpp`**：
+保存到 **`~/ROS-Learning/ros2_week2_ws/src/robot_cpp_basics/src/sensor_publisher.cpp`**：
 
 ```cpp
 #include <chrono>
@@ -890,7 +890,7 @@ int main(int argc, char * argv[])
 
 ### 3.4 完整传感器处理器
 
-保存到 **`~/ros2_week2_ws/src/robot_cpp_basics/src/sensor_processor.cpp`**：
+保存到 **`~/ROS-Learning/ros2_week2_ws/src/robot_cpp_basics/src/sensor_processor.cpp`**：
 
 ```cpp
 #include <cmath>
@@ -953,7 +953,7 @@ int main(int argc, char * argv[])
 
 ### 3.5 更新节点包的构建文件
 
-完整替换 **`~/ros2_week2_ws/src/robot_cpp_basics/CMakeLists.txt`**：
+完整替换 **`~/ROS-Learning/ros2_week2_ws/src/robot_cpp_basics/CMakeLists.txt`**：
 
 ```cmake
 cmake_minimum_required(VERSION 3.8)
@@ -987,7 +987,7 @@ add_lesson_node(sensor_processor)
 ament_package()
 ```
 
-完整替换 **`~/ros2_week2_ws/src/robot_cpp_basics/package.xml`**：
+完整替换 **`~/ROS-Learning/ros2_week2_ws/src/robot_cpp_basics/package.xml`**：
 
 ```xml
 <?xml version="1.0"?>
@@ -1014,7 +1014,7 @@ ament_package()
 BUILD：
 
 ```bash
-cd ~/ros2_week2_ws
+cd ~/ROS-Learning/ros2_week2_ws
 rosdep install --from-paths src --ignore-src -r -y --rosdistro jazzy
 colcon list
 colcon build --symlink-install --packages-up-to robot_cpp_basics \
@@ -1028,7 +1028,7 @@ colcon build --symlink-install --packages-up-to robot_cpp_basics \
 新运行终端 C：
 
 ```bash
-source ~/ros2_week2_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week2_ws/setup_run.bash
 ros2 interface show robot_interfaces/msg/SensorSample
 ros2 pkg executables robot_cpp_basics
 ```
@@ -1040,14 +1040,14 @@ ros2 pkg executables robot_cpp_basics
 B 先启动处理器：
 
 ```bash
-source ~/ros2_week2_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week2_ws/setup_run.bash
 ros2 run robot_cpp_basics sensor_processor
 ```
 
 A 启动发布者：
 
 ```bash
-source ~/ros2_week2_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week2_ws/setup_run.bash
 ros2 run robot_cpp_basics sensor_publisher
 ```
 
@@ -1129,10 +1129,10 @@ Service 文件用一行 `---` 分开请求和响应。今天请求没有字段�
 BUILD：
 
 ```bash
-mkdir -p ~/ros2_week2_ws/src/robot_interfaces/srv
+mkdir -p ~/ROS-Learning/ros2_week2_ws/src/robot_interfaces/srv
 ```
 
-保存到 **`~/ros2_week2_ws/src/robot_interfaces/srv/GetStats.srv`**：
+保存到 **`~/ROS-Learning/ros2_week2_ws/src/robot_interfaces/srv/GetStats.srv`**：
 
 ```text
 ---
@@ -1153,7 +1153,7 @@ float64 moving_average_c
 
 `has_data=false` 时两个温度字段是占位值 0.0，不能解释为已经测量到 0°C。查询返回的是服务回调执行时的快照，接下来数据仍会继续变化。
 
-完整替换 **`~/ros2_week2_ws/src/robot_interfaces/CMakeLists.txt`**：
+完整替换 **`~/ROS-Learning/ros2_week2_ws/src/robot_interfaces/CMakeLists.txt`**：
 
 ```cmake
 cmake_minimum_required(VERSION 3.8)
@@ -1173,7 +1173,7 @@ ament_export_dependencies(rosidl_default_runtime)
 ament_package()
 ```
 
-完整替换 **`~/ros2_week2_ws/src/robot_interfaces/package.xml`**：
+完整替换 **`~/ROS-Learning/ros2_week2_ws/src/robot_interfaces/package.xml`**：
 
 ```xml
 <?xml version="1.0"?>
@@ -1198,7 +1198,7 @@ ament_package()
 
 ### 4.4 发布者完整升级版
 
-先停止第 3 天的节点。完整替换 **`~/ros2_week2_ws/src/robot_cpp_basics/src/sensor_publisher.cpp`**：
+先停止第 3 天的节点。完整替换 **`~/ROS-Learning/ros2_week2_ws/src/robot_cpp_basics/src/sensor_publisher.cpp`**：
 
 ```cpp
 #include <chrono>
@@ -1309,7 +1309,7 @@ int main(int argc, char * argv[])
 
 ### 4.5 处理器完整升级版
 
-完整替换 **`~/ros2_week2_ws/src/robot_cpp_basics/src/sensor_processor.cpp`**：
+完整替换 **`~/ROS-Learning/ros2_week2_ws/src/robot_cpp_basics/src/sensor_processor.cpp`**：
 
 ```cpp
 #include <cmath>
@@ -1436,7 +1436,7 @@ int main(int argc, char * argv[])
 
 ### 4.6 完整 C++ 查询客户端
 
-保存到 **`~/ros2_week2_ws/src/robot_cpp_basics/src/stats_client.cpp`**：
+保存到 **`~/ROS-Learning/ros2_week2_ws/src/robot_cpp_basics/src/stats_client.cpp`**：
 
 ```cpp
 #include <chrono>
@@ -1489,7 +1489,7 @@ int main(int argc, char * argv[])
 
 ### 4.7 完整构建配置与编译
 
-完整替换 **`~/ros2_week2_ws/src/robot_cpp_basics/CMakeLists.txt`**：
+完整替换 **`~/ROS-Learning/ros2_week2_ws/src/robot_cpp_basics/CMakeLists.txt`**：
 
 ```cmake
 cmake_minimum_required(VERSION 3.8)
@@ -1526,7 +1526,7 @@ add_lesson_node(stats_client)
 ament_package()
 ```
 
-完整替换 **`~/ros2_week2_ws/src/robot_cpp_basics/package.xml`**：
+完整替换 **`~/ROS-Learning/ros2_week2_ws/src/robot_cpp_basics/package.xml`**：
 
 ```xml
 <?xml version="1.0"?>
@@ -1551,8 +1551,8 @@ ament_package()
 BUILD：
 
 ```bash
-source ~/ros2_week2_ws/setup_build.bash
-cd ~/ros2_week2_ws
+source ~/ROS-Learning/ros2_week2_ws/setup_build.bash
+cd ~/ROS-Learning/ros2_week2_ws
 rosdep install --from-paths src --ignore-src -r -y --rosdistro jazzy
 colcon build --symlink-install --packages-up-to robot_cpp_basics \
   --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
@@ -1563,21 +1563,21 @@ colcon build --symlink-install --packages-up-to robot_cpp_basics \
 B：
 
 ```bash
-source ~/ros2_week2_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week2_ws/setup_run.bash
 ros2 run robot_cpp_basics sensor_processor
 ```
 
 A：
 
 ```bash
-source ~/ros2_week2_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week2_ws/setup_run.bash
 ros2 run robot_cpp_basics sensor_publisher
 ```
 
 C：
 
 ```bash
-source ~/ros2_week2_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week2_ws/setup_run.bash
 ros2 interface show robot_interfaces/srv/GetStats
 ros2 service call /sensor/get_stats robot_interfaces/srv/GetStats '{}'
 ros2 run robot_cpp_basics stats_client
@@ -1714,10 +1714,10 @@ stateDiagram-v2
 先结束第 4 天的节点。BUILD：
 
 ```bash
-mkdir -p ~/ros2_week2_ws/src/robot_interfaces/action
+mkdir -p ~/ROS-Learning/ros2_week2_ws/src/robot_interfaces/action
 ```
 
-保存到 **`~/ros2_week2_ws/src/robot_interfaces/action/CollectSamples.action`**：
+保存到 **`~/ROS-Learning/ros2_week2_ws/src/robot_interfaces/action/CollectSamples.action`**：
 
 ```text
 uint32 sample_count
@@ -1735,7 +1735,7 @@ float64 progress
 
 对应 C++ 类型为 `CollectSamples::Goal`、`CollectSamples::Result`、`CollectSamples::Feedback`；生成头文件为 `robot_interfaces/action/collect_samples.hpp`。
 
-完整替换 **`~/ros2_week2_ws/src/robot_interfaces/CMakeLists.txt`**：
+完整替换 **`~/ROS-Learning/ros2_week2_ws/src/robot_interfaces/CMakeLists.txt`**：
 
 ```cmake
 cmake_minimum_required(VERSION 3.8)
@@ -1757,7 +1757,7 @@ ament_export_dependencies(rosidl_default_runtime)
 ament_package()
 ```
 
-完整替换 **`~/ros2_week2_ws/src/robot_interfaces/package.xml`**：
+完整替换 **`~/ROS-Learning/ros2_week2_ws/src/robot_interfaces/package.xml`**：
 
 ```xml
 <?xml version="1.0"?>
@@ -1783,7 +1783,7 @@ ament_package()
 
 ### 5.4 完整 Action 服务端
 
-保存到 **`~/ros2_week2_ws/src/robot_cpp_basics/src/collect_server.cpp`**：
+保存到 **`~/ROS-Learning/ros2_week2_ws/src/robot_cpp_basics/src/collect_server.cpp`**：
 
 ```cpp
 #include <chrono>
@@ -1933,7 +1933,7 @@ int main(int argc, char * argv[])
 
 ### 5.5 完整 Action 客户端
 
-保存到 **`~/ros2_week2_ws/src/robot_cpp_basics/src/collect_client.cpp`**：
+保存到 **`~/ROS-Learning/ros2_week2_ws/src/robot_cpp_basics/src/collect_client.cpp`**：
 
 ```cpp
 #include <chrono>
@@ -2090,7 +2090,7 @@ int main(int argc, char * argv[])
 
 ### 5.6 完整构建文件
 
-完整替换 **`~/ros2_week2_ws/src/robot_cpp_basics/CMakeLists.txt`**：
+完整替换 **`~/ROS-Learning/ros2_week2_ws/src/robot_cpp_basics/CMakeLists.txt`**：
 
 ```cmake
 cmake_minimum_required(VERSION 3.8)
@@ -2130,7 +2130,7 @@ add_lesson_node(collect_client)
 ament_package()
 ```
 
-完整替换 **`~/ros2_week2_ws/src/robot_cpp_basics/package.xml`**：
+完整替换 **`~/ROS-Learning/ros2_week2_ws/src/robot_cpp_basics/package.xml`**：
 
 ```xml
 <?xml version="1.0"?>
@@ -2156,8 +2156,8 @@ ament_package()
 BUILD：
 
 ```bash
-source ~/ros2_week2_ws/setup_build.bash
-cd ~/ros2_week2_ws
+source ~/ROS-Learning/ros2_week2_ws/setup_build.bash
+cd ~/ROS-Learning/ros2_week2_ws
 rosdep install --from-paths src --ignore-src -r -y --rosdistro jazzy
 colcon build --symlink-install --packages-up-to robot_cpp_basics \
   --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
@@ -2166,7 +2166,7 @@ colcon build --symlink-install --packages-up-to robot_cpp_basics \
 C：
 
 ```bash
-source ~/ros2_week2_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week2_ws/setup_run.bash
 ros2 interface show robot_interfaces/action/CollectSamples
 ```
 
@@ -2177,14 +2177,14 @@ ros2 interface show robot_interfaces/action/CollectSamples
 B：
 
 ```bash
-source ~/ros2_week2_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week2_ws/setup_run.bash
 ros2 run robot_cpp_basics collect_server
 ```
 
 A：
 
 ```bash
-source ~/ros2_week2_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week2_ws/setup_run.bash
 ros2 run robot_cpp_basics sensor_publisher
 ```
 
@@ -2248,7 +2248,7 @@ ros2 run robot_cpp_basics collect_client --ros-args -p sample_count:=100
 在它完成前，新开 D，加载环境并请求另一个任务：
 
 ```bash
-source ~/ros2_week2_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week2_ws/setup_run.bash
 ros2 action send_goal /sensor/collect_samples \
   robot_interfaces/action/CollectSamples '{sample_count: 5}' --feedback
 ```
@@ -2308,11 +2308,11 @@ Python launch 用于描述启动行为；本周只需理解文件中的导入、
 BUILD：
 
 ```bash
-mkdir -p ~/ros2_week2_ws/src/robot_cpp_basics/launch
-mkdir -p ~/ros2_week2_ws/src/robot_cpp_basics/config
+mkdir -p ~/ROS-Learning/ros2_week2_ws/src/robot_cpp_basics/launch
+mkdir -p ~/ROS-Learning/ros2_week2_ws/src/robot_cpp_basics/config
 ```
 
-保存到 **`~/ros2_week2_ws/src/robot_cpp_basics/config/sensors.yaml`**：
+保存到 **`~/ROS-Learning/ros2_week2_ws/src/robot_cpp_basics/config/sensors.yaml`**：
 
 ```yaml
 /robot1/sensor_publisher:
@@ -2332,7 +2332,7 @@ mkdir -p ~/ros2_week2_ws/src/robot_cpp_basics/config
 
 ### 6.3 完整 launch 文件
 
-保存到 **`~/ros2_week2_ws/src/robot_cpp_basics/launch/sensor_system.launch.py`**：
+保存到 **`~/ROS-Learning/ros2_week2_ws/src/robot_cpp_basics/launch/sensor_system.launch.py`**：
 
 ```python
 from pathlib import Path
@@ -2389,7 +2389,7 @@ def generate_launch_description():
 
 ### 6.4 安装资源与完整最终构建文件
 
-完整替换 **`~/ros2_week2_ws/src/robot_cpp_basics/CMakeLists.txt`**：
+完整替换 **`~/ROS-Learning/ros2_week2_ws/src/robot_cpp_basics/CMakeLists.txt`**：
 
 ```cmake
 cmake_minimum_required(VERSION 3.8)
@@ -2431,7 +2431,7 @@ install(DIRECTORY launch config DESTINATION share/${PROJECT_NAME})
 ament_package()
 ```
 
-完整替换 **`~/ros2_week2_ws/src/robot_cpp_basics/package.xml`**：
+完整替换 **`~/ROS-Learning/ros2_week2_ws/src/robot_cpp_basics/package.xml`**：
 
 ```xml
 <?xml version="1.0"?>
@@ -2464,8 +2464,8 @@ ament_package()
 BUILD：
 
 ```bash
-source ~/ros2_week2_ws/setup_build.bash
-cd ~/ros2_week2_ws
+source ~/ROS-Learning/ros2_week2_ws/setup_build.bash
+cd ~/ROS-Learning/ros2_week2_ws
 rosdep install --from-paths src --ignore-src -r -y --rosdistro jazzy
 colcon build --symlink-install --packages-up-to robot_cpp_basics \
   --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
@@ -2476,14 +2476,14 @@ colcon build --symlink-install --packages-up-to robot_cpp_basics \
 结束所有旧的单独节点。在 A：
 
 ```bash
-source ~/ros2_week2_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week2_ws/setup_run.bash
 ros2 launch robot_cpp_basics sensor_system.launch.py
 ```
 
 C：
 
 ```bash
-source ~/ros2_week2_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week2_ws/setup_run.bash
 ros2 node list
 ros2 topic list -t
 ros2 param get /robot1/sensor_publisher period_ms
@@ -2555,7 +2555,7 @@ ros2 topic hz /robot1/sensor/filtered
 保持默认配置的 launch 正在运行。C：
 
 ```bash
-cd ~/ros2_week2_ws
+cd ~/ROS-Learning/ros2_week2_ws
 ros2 bag record -o bags/sensor_run_01 \
   /robot1/sensor/raw /robot1/sensor/filtered
 ```
@@ -2563,7 +2563,7 @@ ros2 bag record -o bags/sensor_run_01 \
 等待约 15 秒，按 `Ctrl+C` 停止录制，等待程序正常关闭。输出目录必须尚不存在；重复实验改成 `sensor_run_02` 等编号，不要覆盖之前的记录。
 
 ```bash
-ros2 bag info ~/ros2_week2_ws/bags/sensor_run_01
+ros2 bag info ~/ROS-Learning/ros2_week2_ws/bags/sensor_run_01
 ```
 
 应能看到两个话题、相应类型、记录时长和消息数量。默认配置中有效输出数量通常少于原始输入；开始记录时的发现时间也会影响计数，不要求恰好是 90%。
@@ -2577,7 +2577,7 @@ bag 保存的是消息流。本命令没有把源码、YAML 配置、参数设�
 B：
 
 ```bash
-source ~/ros2_week2_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week2_ws/setup_run.bash
 ros2 run robot_cpp_basics sensor_processor --ros-args \
   -r __ns:=/robot1 -p window_size:=3
 ```
@@ -2585,15 +2585,15 @@ ros2 run robot_cpp_basics sensor_processor --ros-args \
 D：
 
 ```bash
-source ~/ros2_week2_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week2_ws/setup_run.bash
 ros2 topic echo /robot1/sensor/filtered --field data
 ```
 
 C：
 
 ```bash
-source ~/ros2_week2_ws/setup_run.bash
-ros2 bag play ~/ros2_week2_ws/bags/sensor_run_01 --topics /robot1/sensor/raw
+source ~/ROS-Learning/ros2_week2_ws/setup_run.bash
+ros2 bag play ~/ROS-Learning/ros2_week2_ws/bags/sensor_run_01 --topics /robot1/sensor/raw
 ```
 
 这里只回放原始话题，重新计算滤波输出。若把历史 `/robot1/sensor/filtered` 也回放出来，同时处理器还发布同名输出，观察终端就会把历史结果与新结果混在一起。
@@ -2633,10 +2633,10 @@ ros2 bag play ~/ros2_week2_ws/bags/sensor_run_01 --topics /robot1/sensor/raw
 BUILD：
 
 ```bash
-mkdir -p ~/ros2_week2_ws/src/robot_cpp_basics/test
+mkdir -p ~/ROS-Learning/ros2_week2_ws/src/robot_cpp_basics/test
 ```
 
-保存到 **`~/ros2_week2_ws/src/robot_cpp_basics/test/test_moving_average.cpp`**：
+保存到 **`~/ROS-Learning/ros2_week2_ws/src/robot_cpp_basics/test/test_moving_average.cpp`**：
 
 ```cpp
 #include <cmath>
@@ -2691,7 +2691,7 @@ int main()
 运行：
 
 ```bash
-cd ~/ros2_week2_ws
+cd ~/ROS-Learning/ros2_week2_ws
 g++ -std=c++17 -Wall -Wextra -Wpedantic -Werror \
   -I src/robot_cpp_basics/include \
   src/robot_cpp_basics/test/test_moving_average.cpp \
@@ -2714,21 +2714,21 @@ PASS: warm-up, sliding window, reset, NaN, zero window
 B 只启动处理器，窗口 3；**不要启动模拟发布者或 bag**：
 
 ```bash
-source ~/ros2_week2_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week2_ws/setup_run.bash
 ros2 run robot_cpp_basics sensor_processor --ros-args -p window_size:=3
 ```
 
 D 先订阅滤波输出：
 
 ```bash
-source ~/ros2_week2_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week2_ws/setup_run.bash
 ros2 topic echo /sensor/filtered --field data
 ```
 
 C 清空状态并查询：
 
 ```bash
-source ~/ros2_week2_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week2_ws/setup_run.bash
 ros2 service call /sensor/reset_stats std_srvs/srv/Trigger '{}'
 ros2 run robot_cpp_basics stats_client
 ```
@@ -2805,7 +2805,7 @@ ros2 topic pub --rate 2 --qos-reliability best_effort \
 在另一个观察终端运行：
 
 ```bash
-source ~/ros2_week2_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week2_ws/setup_run.bash
 ros2 topic info /sensor/raw --verbose
 ros2 run robot_cpp_basics stats_client
 ```
@@ -2827,7 +2827,7 @@ ros2 launch robot_cpp_basics sensor_system.launch.py
 C：
 
 ```bash
-source ~/ros2_week2_ws/setup_run.bash
+source ~/ROS-Learning/ros2_week2_ws/setup_run.bash
 ros2 run robot_cpp_basics stats_client --ros-args -r __ns:=/robot1
 ros2 run robot_cpp_basics collect_client --ros-args \
   -r __ns:=/robot1 -p sample_count:=10
@@ -2856,7 +2856,7 @@ ros2 run robot_cpp_basics collect_client --ros-args \
 
 ### 7.7 本周报告模板
 
-将下面模板保存到 **`~/ros2_week2_ws/notes/week2-report.md`**，填入你实际观察的结果，不要把预期结果直接当成实测记录。
+将下面模板保存到 **`~/ROS-Learning/ros2_week2_ws/notes/week2-report.md`**，填入你实际观察的结果，不要把预期结果直接当成实测记录。
 
 ```markdown
 # ROS 2 第二周实验记录
@@ -2906,28 +2906,32 @@ ros2 run robot_cpp_basics collect_client --ros-args \
 
 ### 7.8 保留一个能恢复的版本
 
-如果此工作空间尚未由其他 Git 仓库管理，可以在本地创建仓库。先保存 **`~/ros2_week2_ws/.gitignore`**：
+本周工作空间 `~/ROS-Learning/ros2_week2_ws` 由外层 `~/ROS-Learning` Git 仓库统一管理。沿用主仓库提交本周源码、环境脚本和笔记，让 `ros2_week2_ws` 保持普通目录。
+
+确认主仓库根目录的 **`~/ROS-Learning/.gitignore`** 包含：
 
 ```gitignore
-/build/
-/install/
-/log/
-/bags/
+**/build/
+**/install/
+**/log/
+**/bags/
 __pycache__/
 *.pyc
 ```
 
-然后：
+在主仓库根目录执行：
 
 ```bash
-cd ~/ros2_week2_ws
-git init
-git add src notes setup_build.bash setup_run.bash .gitignore
+cd ~/ROS-Learning
+git add .gitignore ros2_week2_ws/src ros2_week2_ws/setup_build.bash ros2_week2_ws/setup_run.bash
+if [ -d ros2_week2_ws/notes ]; then
+  git add ros2_week2_ws/notes
+fi
 git status --short
 git commit -m "Complete ROS 2 week 2 sensor system"
 ```
 
-如果 Git 要求作者信息，用你自己的本地 Git 配置填写后再提交；这一步无需推送远端。bag 文件保留在本机，通常不直接加入普通源码仓库。若工作空间已经处于已有仓库中，沿用原仓库提交方式，不必新建嵌套仓库。
+如果 Git 要求作者信息，用你自己的本地 Git 配置填写后再提交；需要上传 GitHub 时，在主仓库目录执行 `git push`。bag 文件保留在本机，通常不直接加入普通源码仓库。本节的 Git 操作在 `~/ROS-Learning` 执行；本周的 `colcon build` 仍在 `~/ROS-Learning/ros2_week2_ws` 执行。
 
 <a id="exam"></a>
 
@@ -3003,7 +3007,7 @@ git commit -m "Complete ROS 2 week 2 sensor system"
 |---|---|---|
 | `ros2: command not found` | 未加载基础环境或 ROS 未安装 | `source /opt/ros/jazzy/setup.bash`，确认路径存在 |
 | `colcon: command not found` | 构建工具未安装 | 第 1 天安装 `ros-dev-tools` |
-| `Package 'robot_cpp_basics' not found` | 未构建或运行端未加载 overlay | 构建成功后 `source ~/ros2_week2_ws/setup_run.bash` |
+| `Package 'robot_cpp_basics' not found` | 未构建或运行端未加载 overlay | 构建成功后 `source ~/ROS-Learning/ros2_week2_ws/setup_run.bash` |
 | `No executable found` | 漏目标或漏 install 规则，或程序名错误 | `ros2 pkg executables robot_cpp_basics`，核对 CMake 和运行名 |
 | 找不到 `sensor_sample.hpp` / `get_stats.hpp` / `collect_samples.hpp` | 接口没生成、接口文件没加入 CMake、依赖漏写 | 核对接口包，使用 `--packages-up-to` 构建两个包 |
 | `find_package(robot_interfaces)` 失败 | 接口包未先构建或依赖关系缺失 | 核对节点包 XML 的 `<depend>robot_interfaces</depend>` |
@@ -3057,7 +3061,7 @@ daemon 管理 CLI 图信息，不会代替你停止正在运行的业务节点�
 需要更清晰地看到实时输出时：
 
 ```bash
-cd ~/ros2_week2_ws
+cd ~/ROS-Learning/ros2_week2_ws
 colcon build --symlink-install --packages-up-to robot_cpp_basics \
   --event-handlers console_direct+ \
   --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
@@ -3078,10 +3082,10 @@ colcon build --symlink-install --packages-up-to robot_cpp_basics --cmake-clean-c
 本手册构建命令生成：
 
 ```text
-~/ros2_week2_ws/build/robot_cpp_basics/compile_commands.json
+~/ROS-Learning/ros2_week2_ws/build/robot_cpp_basics/compile_commands.json
 ```
 
-如果使用 VSCode 的 Microsoft C/C++ 扩展，可以创建 **`~/ros2_week2_ws/.vscode/c_cpp_properties.json`**：
+如果使用 VSCode 的 Microsoft C/C++ 扩展，可以创建 **`~/ROS-Learning/ros2_week2_ws/.vscode/c_cpp_properties.json`**：
 
 ```json
 {
@@ -3112,8 +3116,8 @@ colcon build --symlink-install --packages-up-to robot_cpp_basics --cmake-clean-c
 
 | 目的 | 命令 |
 |---|---|
-| 加载构建环境 | `source ~/ros2_week2_ws/setup_build.bash` |
-| 加载运行环境 | `source ~/ros2_week2_ws/setup_run.bash` |
+| 加载构建环境 | `source ~/ROS-Learning/ros2_week2_ws/setup_build.bash` |
+| 加载运行环境 | `source ~/ROS-Learning/ros2_week2_ws/setup_run.bash` |
 | 查看包 | 在工作空间根目录运行 `colcon list` |
 | 安装依赖 | `rosdep install --from-paths src --ignore-src -r -y --rosdistro jazzy` |
 | 构建 | `colcon build --symlink-install --packages-up-to robot_cpp_basics` |
@@ -3130,7 +3134,7 @@ colcon build --symlink-install --packages-up-to robot_cpp_basics --cmake-clean-c
 
 ### 最终文件索引
 
-下表路径均相对于 `~/ros2_week2_ws`。本周只需要按顺序建立这些文件，不需要下载隐藏的配套工程。
+下表路径均相对于 `~/ROS-Learning/ros2_week2_ws`。本周只需要按顺序建立这些文件，不需要下载隐藏的配套工程。
 
 | 文件 | 使用哪一版 |
 |---|---|
