@@ -3,11 +3,12 @@
   <name>robot_cpp_basics</name>
   <version>0.0.1</version>
   <description>ROS 2 C++ week 2 learning nodes</description>
-  <maintainer email="sangyi31415926@gmail.com">SangYi</maintainer>
+  <maintainer email="student@example.com">Student</maintainer>
   <license>Apache-2.0</license>
   <buildtool_depend>ament_cmake</buildtool_depend>
   <depend>rclcpp</depend>
   <depend>std_msgs</depend>
+  <depend>robot_interfaces</depend>
   <export>
     <build_type>ament_cmake</build_type>
   </export>
