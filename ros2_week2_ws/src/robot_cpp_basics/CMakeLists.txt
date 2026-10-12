@@ -30,12 +30,8 @@ add_lesson_node(hello_node src/hello_node.cpp)
 add_lesson_node(number_publisher src/number_publisher.cpp)
 add_lesson_node(number_subscriber src/number_subscriber.cpp)
 
-add_lesson_node(sensor_publisher
-  ../robot_interfaces/src/sensor_publisher.cpp
-)
+add_lesson_node(sensor_publisher src/sensor_publisher.cpp)
 
-add_lesson_node(sensor_processor
-  ../robot_interfaces/src/sensor_processor.cpp
-)
+add_lesson_node(sensor_processor src/sensor_processor.cpp)
 
 ament_package()
