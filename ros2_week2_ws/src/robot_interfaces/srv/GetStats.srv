@@ -1,0 +1,6 @@
+---
+uint64 accepted_count
+uint64 rejected_count
+bool has_data
+float64 latest_temperature_c
+float64 moving_average_c
