@@ -20,7 +20,7 @@ public:
     rcl_interfaces::msg::ParameterDescriptor description;
     description.description = "Moving average window: 1 ... 50";
     description.read_only = true;
-    const auto window = declare_parameter<std::uint64_t>("window_size" , 3 , description);
+    const auto window = declare_parameter<std::int64_t>("window_size" , 3 , description);
     if (window < 1 || window > 50)
     {
       throw std::invalid_argument("window size must be in [1, 50]");

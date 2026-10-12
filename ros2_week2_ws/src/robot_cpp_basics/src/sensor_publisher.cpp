@@ -8,7 +8,7 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "robot_interfaces/msg/sensor_sample.hpp"
-#include "rcl_interfaces//msg/parameter_descriptor.hpp"
+#include "rcl_interfaces/msg/parameter_descriptor.hpp"
 #include "rcl_interfaces/msg/set_parameters_result.hpp" 
 
 class SensorPublisher : public rclcpp::Node
@@ -19,9 +19,9 @@ class SensorPublisher : public rclcpp::Node
             rcl_interfaces::msg::ParameterDescriptor period_descriptor;
             period_descriptor.description = "Publish period in milliseconds: 20 ... 2000";
             period_descriptor.read_only = true ;
-            const auto period_ms = declare_parameter<std::uint64_t>("period_ms" , 200 , period_descriptor);
+            const auto period_ms = declare_parameter<std::int64_t>("period_ms" , 200 , period_descriptor);
             const auto base = declare_parameter<double>("base_temperature_c" , 25.0);
-            const auto inject_invalid = declare_parameter<bool>("inject_invalid" , true);
+            declare_parameter<bool>("inject_invalid" , true);
             if (period_ms < 20 || period_ms > 2000) {
                 throw std::invalid_argument("period_ms must be in [20, 2000]");
             }
@@ -68,11 +68,12 @@ class SensorPublisher : public rclcpp::Node
                         }
                     }
                 }
+                return result;
             }
             );
             
             publisher_ = create_publisher<robot_interfaces::msg::SensorSample>("sensor/raw" , rclcpp::QoS(10).reliable());
-            timer_ = create_wall_timer(std::chrono::milliseconds(200) , [this](){
+            timer_ = create_wall_timer(std::chrono::milliseconds(period_ms) , [this](){
                 publish_sample();
             });
         }
