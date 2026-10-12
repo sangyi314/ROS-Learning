@@ -9,29 +9,24 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(robot_interfaces REQUIRED)
+find_package(rcl_interfaces REQUIRED)
+find_package(std_srvs REQUIRED)
 
-function(add_lesson_node target source_file)
-  add_executable(${target} "${source_file}")
-
-  target_include_directories(${target} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-  )
-
-  ament_target_dependencies(${target}
-    rclcpp std_msgs robot_interfaces
-  )
-
-  install(TARGETS ${target}
-    DESTINATION lib/${PROJECT_NAME}
-  )
+function(add_lesson_node target)
+  add_executable(${target} src/${target}.cpp)
+  target_include_directories(${target} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+  ament_target_dependencies(${target} rclcpp std_msgs robot_interfaces rcl_interfaces std_srvs)
+  if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic)
+  endif()
+  install(TARGETS ${target} DESTINATION lib/${PROJECT_NAME})
 endfunction()
 
-add_lesson_node(hello_node src/hello_node.cpp)
-add_lesson_node(number_publisher src/number_publisher.cpp)
-add_lesson_node(number_subscriber src/number_subscriber.cpp)
-
-add_lesson_node(sensor_publisher src/sensor_publisher.cpp)
-
-add_lesson_node(sensor_processor src/sensor_processor.cpp)
+add_lesson_node(hello_node)
+add_lesson_node(number_publisher)
+add_lesson_node(number_subscriber)
+add_lesson_node(sensor_publisher)
+add_lesson_node(sensor_processor)
+add_lesson_node(stats_client)
 
 ament_package()
