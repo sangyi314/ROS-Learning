@@ -32,4 +32,6 @@ add_lesson_node(stats_client)
 add_lesson_node(collect_server)
 add_lesson_node(collect_client)
 
+install(DIRECTORY launch config DESTINATION share/${PROJECT_NAME})
+
 ament_package()
