@@ -1,0 +1,9 @@
+uint32 sample_count
+---
+uint32 collected_count
+float64 mean_temperature_c
+string message
+---
+uint32 collected_count
+uint32 target_count
+float64 progress

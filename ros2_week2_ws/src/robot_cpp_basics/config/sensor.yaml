@@ -1,0 +1,9 @@
+/robot1/sensor_publisher:
+  ros__parameters:
+    period_ms: 200
+    base_temperature_c: 25.0
+    inject_invalid: true
+
+/robot1/sensor_processor:
+  ros__parameters:
+    window_size: 3
