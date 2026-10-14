@@ -1,0 +1,4 @@
+source /opt/ros/jazzy/setup.bash
+export ROS_DOMAIN_ID=42
+unset ROS_LOCALHOST_ONLY ROS_STATIC_PEERS
+export ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST
